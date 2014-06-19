@@ -76,6 +76,8 @@ STATIC_URL = '/static/'
 
 LOGIN_URL = '/accounts/login/'
 
+AUTH_PROFILE_MODULE = 'home.userProfile'
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
@@ -135,6 +137,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'django_evolution',
+    'cmsdata.apps.home',
 
 )
 
