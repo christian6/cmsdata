@@ -63,9 +63,11 @@ class DocumentIn(models.Model):
     supplier = models.ForeignKey(Supplier)
     destination = models.CharField(max_length=200)
     register = models.DateTimeField(auto_now=True)
-    transfer = models.DateField(null=True, blank=True)
+    transfer = models.DateField(null=True)
     reference = models.CharField(max_length=160, null=True, blank=True)
     motive = models.CharField(max_length=40, null=True, blank=True)
+    status = models.CharField(max_length=2, default='PE')
+    flag = models.BooleanField(default=True)
 
     # class Meta:
     #     verbose_name = _('DocumentIn')
@@ -74,7 +76,7 @@ class DocumentIn(models.Model):
     def __unicode__(self):
         return "%s %s"%(self.serie, self.supplier, self.transfer)
 
-class DetDocumentin(models.Model):
+class DetDocumentIn(models.Model):
     serie = models.ForeignKey(DocumentIn, to_field='serie_id')
     materials = models.ForeignKey(Materials, to_field='materiales_id')
     quantity = models.FloatField()
@@ -88,6 +90,12 @@ class DetDocumentin(models.Model):
     def __unicode__(self):
         return "%s %s %f %f"%(self.serie, serie.materials, self.quantity, self.price)
 
+# class tmpinput(models.Model):
+#     token = models.CharField(max_length=8)
+#     materials = models.ForeignKey(Materials, to_field='materiales_id')
+#     quantity = models.FloatField()
+#     price = models.FloatField()
+
 class DocumentOut(models.Model):
     serie_id = models.CharField(primary_key=True, max_length=11)
     custormers = models.ForeignKey(Customer, to_field='custormers_id')
@@ -100,6 +108,7 @@ class DocumentOut(models.Model):
     transreason = models.CharField(max_length=200, null=True, blank=True)
     plate = models.CharField(max_length=7, null=True, blank=True)
     license = models.CharField(max_length=10)
+    status = models.CharField(max_length=2, default='PE')
     flag = models.BooleanField(default=True)
 
     # class Meta:

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}
+	List Document Entry
+{% endblock title %}
+{% block scripts %}
+<script src="{{ MEDIA_URL }}js/home/listdocentry.js"></script>
+{% endblock scripts %}
+{% block menu %}
+	
+{% endblock menu %}
+{% block content %}
+	<div class="container">
+		<div class="well">
+			<aside>
+				<h2>Document List Entry</h2>
+			</aside>
+			<section>
+				<article>
+					<div class="bs-callout bs-callout-warning">
+						<form action="" method="GET" >
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										Search per: 
+										<label class="radio-inline"><input type="radio" name="search" value="status"> Status</label>
+										<label class="radio-inline"><input type="radio" name="search" value="dates"> Dates</label>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label class="control-label">Status</label>
+										<select class="form-control status" name="status"  title="Selected Status, not empty!" disabled required>
+											<option value="">--Select status --</option>
+											<option value="PE">PENDING</option>
+											<option value="CO">COMPLETE</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label class="control-label">Date Start</label>
+										<input type="text" maxlength="10" name="dstart" placeholder="yyyy-mm-dd"  title="field Date not empty!"  class="form-control dates" disabled required>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label class="control-label">Date End</label>
+										<input type="text" maxlength="10" name="dend" placeholder="yyyy-mm-dd" class="form-control dates" title="field Date not empty!" disabled>
+									</div>
+								</div>
+								<div class="col-md-1">
+									<div class="form-group">
+										<label class="control-label">Search</label>
+										<button type="Submit" value="sutmit" class="btn btn-success btn-block text-black"><span class="glyphicon glyphicon-search"></span></button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</article>
+				<article>
+					<div class="table-responsive">
+						<table class="table table-hover table condensed table-striped">
+							<caption>
+								<a href="{% url 'view_add_docin' %}" class="btn btn-warning btn-xs text-black pull-left"><span class="glyphicon glyphicon-file"></span> New Document</a>
+							</caption>
+							<thead>
+								<tr>
+									<th></th><th>Serie ID</th><th>Supplier</th><th>Campany Name</th><th>Transfer</th><th>Stattus</th><th></th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for x in documents %}
+									<tr>
+										<td>{{ forloop.counter }}</td>
+										<td>{{ x.serie }}</td>
+										<td>{{ x.supplier_id }}</td>
+										<td>{{ x.supplier.reason }}</td>
+										<td>{{ x.transfer }}</td>
+										<td>{{ x.status }}</td>
+										<td>
+											<a href="{% url 'view_add_docin' %}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
+										</td>
+									</tr>
+								{% empty %}
+									<div class="alert alert-block alert-warning">
+										<strong>Warning!</strong>
+										<p>
+											<q>Documents</q> nothing list.
+										</p>
+									</div>
+								{% endfor %}
+							</tbody>
+							<tfoot>
+								<tr>
+									<td colspan="7" class="text-center">
+										<ul class="pagination">
+											{% if supply.has_preveous %}
+												<li><a href="?page=1">&laquo;</a></li>	
+												<li><a href="?page={{ supply.previous_page_number }}">&laquo;</a></li>	
+											{% endif %}								
+											<li><a> Page {{ supply.number }} of {{ supply.paginator.num_pages }}</a></li>
+											{% if supply.has_next %}
+												<li><a href="?page={{ supply.next_page_number }}">&raquo;</a></li>
+												<li><a href="?page={{ supply.paginator.num_pages }}">&raquo;</a></li>
+											{% endif %}
+										</ul>
+									</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</article>
+			</section>
+		</div>
+	</div>
+{% endblock content %}

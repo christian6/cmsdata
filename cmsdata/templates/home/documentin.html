@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}
+	Add Document In
+{% endblock title %}
+{% block scripts %}
+<script src="{{ MEDIA_URL }}js/home/adddocumententry.js"></script>
+{% endblock scripts %}
+{% block menu %}
+{% endblock menu %}
+{% block content %}
+	<div class="container">
+		<div class="well">
+			<header>
+				<h1>Add Document In</h1>	
+			</header>
+			<section>
+				<div class="btn-group">
+					<button class="btn btn-warning text-black btn-new"><span class="glyphicon glyphicon-file"></span> <span class="text">New Document</span></button>
+					<button class="btn btn-warning text-black ctrl-disabled btn-clean" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-trash"></span> Clean Fields</button>
+					<button class="btn btn-warning text-black ctrl-disabled btn-save" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-floppy-disk"></span> Save Document</button>
+				</div>
+			</section>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-warning bedside">
+					<div class="panel-heading">
+						<strong>Bedside Document</strong>
+					</div>
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Serie</label>
+										<input type="text" class="form-control control ctrl-disabled" maxlength="12" name="serie_id" placeholder="000-00000000" title="Ingress Seria Document" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">RUC Supplir</label>
+										<div class="input-group">
+											<input type="text" class="form-control control ctrl-disabled" maxlength="11" name="supplier_id" placeholder="00000000000" title="Ingress RUC Supplier" REQUIRED disabled>
+											<span class="input-group-btn">
+												<button class="btn btn-default btn-supplier" type="button"><span class="glyphicon glyphicon-search"></span></button>
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Company Name</label>
+										<input type="text" class="form-control control ctrl-disabled" name="reason" placeholder="Apple Inc" title="Ingress Company Name" disabled>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Destination</label>
+										<input type="text" class="form-control control ctrl-disabled" name="destination" placeholder="Address send" title="Ingress Destination" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Transfer</label>
+										<input type="text" class="form-control control ctrl-disabled" maxlength="10" name="transfer" placeholder="yyyy-mm-dd" title="Ingress Date Transfer" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Reference</label>
+										<input type="text" class="form-control control ctrl-disabled" name="reference" placeholder="Address Reference" title="Ingress Reference" disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Motive</label>
+										<input type="text" class="form-control control ctrl-disabled" name="reason" placeholder="Venta" title="Ingress Motive, Not required" disabled>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock content %}

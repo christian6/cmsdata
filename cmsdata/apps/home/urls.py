@@ -9,4 +9,10 @@ urlpatterns = patterns('',
     url(r'^accounts/login/$', ViewLogin.as_view(), name='view_login'),
     url(r'^accounts/logout/$', ViewLogout.as_view(), name='view_logout'),
     url(r'^$', ViewHome.as_view(), name='view_home'),
+
+    url(r'^list/document/entry', ViewListDocumentEntry.as_view(), name='view_list_entry'),
+    url(r'^add/document/In/$', ViewDocumentIn.as_view(), name='view_add_docin'),
+    url(r'^add/document/In/$', ViewDocumentOut.as_view(), name='view_add_docout'),
+    url(r'^add/document/In/$', ViewMaterials.as_view(), name='view_add_mat'),
+    url(r'^add/document/In/$', ViewSupplier.as_view(), name='view_add_sup'),
 )

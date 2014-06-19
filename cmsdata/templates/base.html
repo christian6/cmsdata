@@ -26,7 +26,7 @@
 	{% endblock %}
 	<!-- Part Style-Basic -->
 	{% block stylebase %}
-	<!--<link rel="stylesheet" href="{{ MEDIA_URL }}css/base.css">-->
+	<link rel="stylesheet" href="{{ MEDIA_URL }}css/base.css">
 	{% endblock %}
 	<!-- Part Styles -->
 	{% block styles %}{% endblock styles %}
@@ -44,6 +44,7 @@
 		{% block header %}
 		{% endblock %}
 		{% block menu %}
+			{% include "home/menu.htm" %}
 		{% endblock %}
 	</header>
 	<section>
