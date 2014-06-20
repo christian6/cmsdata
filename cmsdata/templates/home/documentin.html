@@ -3,7 +3,9 @@
 	Add Document In
 {% endblock title %}
 {% block scripts %}
+<script src="{{ MEDIA_URL }}js/mustache.js"></script>
 <script src="{{ MEDIA_URL }}js/home/adddocumententry.js"></script>
+<script src="{{ MEDIA_URL }}js/getmaterials.js"></script>
 {% endblock scripts %}
 {% block menu %}
 {% endblock menu %}
@@ -11,9 +13,12 @@
 	<div class="container">
 		<div class="well">
 			<header>
-				<h1>Add Document In</h1>	
+				<h1>
+					Add Document In <br>
+					<small class="show-details">Details for document <span class="serie"></span></small>
+				</h1>
 			</header>
-			<section>
+			<section class="btn-bedside">
 				<div class="btn-group">
 					<button class="btn btn-warning text-black btn-new"><span class="glyphicon glyphicon-file"></span> <span class="text">New Document</span></button>
 					<button class="btn btn-warning text-black ctrl-disabled btn-clean" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-trash"></span> Clean Fields</button>
@@ -24,21 +29,22 @@
 				<div class="col-md-12">
 					<div class="panel panel-warning bedside">
 					<div class="panel-heading">
-						<strong>Bedside Document</strong>
+						<strong>Bedside Document</strong><br>
+						<small>Fields Required *</small>
 					</div>
-						<div class="panel-body">
+						<div class="panel-body panel-bedside">
 							<div class="row">
 								<div class="col-md-2">
 									<div class="form-gruop has-warning">
-										<label class="control-label">Serie</label>
+										<label class="control-label">Serie *</label>
 										<input type="text" class="form-control control ctrl-disabled" maxlength="12" name="serie_id" placeholder="000-00000000" title="Ingress Seria Document" REQUIRED disabled>
 									</div>
 								</div>
 								<div class="col-md-2">
 									<div class="form-gruop has-warning">
-										<label class="control-label">RUC Supplir</label>
+										<label class="control-label">RUC Supplir *</label>
 										<div class="input-group">
-											<input type="text" class="form-control control ctrl-disabled" maxlength="11" name="supplier_id" placeholder="00000000000" title="Ingress RUC Supplier" REQUIRED disabled>
+											<input type="text" class="form-control control ctrl-disabled" maxlength="11" name="supplier" placeholder="00000000000" title="Ingress RUC Supplier" REQUIRED disabled>
 											<span class="input-group-btn">
 												<button class="btn btn-default btn-supplier control ctrl-disabled" type="button" disabled><span class="glyphicon glyphicon-search"></span></button>
 											</span>
@@ -53,13 +59,13 @@
 								</div>
 								<div class="col-md-4">
 									<div class="form-gruop has-warning">
-										<label class="control-label">Destination</label>
+										<label class="control-label">Destination *</label>
 										<input type="text" class="form-control control ctrl-disabled" name="destination" placeholder="Address send" title="Ingress Destination" REQUIRED disabled>
 									</div>
 								</div>
 								<div class="col-md-2">
 									<div class="form-gruop has-warning">
-										<label class="control-label">Transfer</label>
+										<label class="control-label">Transfer *</label>
 										<input type="text" class="form-control control ctrl-disabled" maxlength="10" name="transfer" placeholder="yyyy-mm-dd" title="Ingress Date Transfer" REQUIRED disabled>
 									</div>
 								</div>
@@ -79,7 +85,118 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-md-12">
+					<div class="panel panel-primary show-details">
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="alert alert-warning">
+										<div class="row">
+											<div class="col-md-4">
+												<div class="form-group">
+													<label class="control-label">Description Materials</label>
+													<input type="text" class="form-control" name="description" placeholder="Ingress Description">
+													<ul id="matname-global" class="matname-global"></ul>
+												</div>
+											</div>
+											<div class="col-md-2">
+												<div class="form-group">
+													<label class="control-label">Code Materials</label>
+													<input type="text" class="form-control" maxlength="15" placeholder="Ingress Code" name="code-material">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label class="control-label">Meter Materials</label>
+													<select class="form-control" name="meter">
+													</select>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="alert alert-success">
+													<strong>Details</strong>
+													<table class="tb-details">
+														<tbody></tbody>
+													</table>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label class="control-label">Quantity</label>
+														<input type="number" class="form-control" min="0" name="quantity">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label class="control-label">Price</label>
+														<input type="number" class="form-control" min="0" name="price">
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group">
+														<label class="control-label">Aggregate</label>
+														<button class="btn btn-warning btn-block text-black btn-add-in"><span class="glyphicon glyphicon-plus"></span></button>
+													</div>
+												<div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="table-responsive">
+										<table class="table table-hover table-condensed table-detailsIn">
+											<caption>
+												<button class="btn btn-primary btn-sm pull-right"><span class="glyphicon glyphicon-floppy-saved"></span> Finish Document</button>
+											</caption>
+											<thead>
+												<tr class="brand-primary text-white">
+													<th>Item</th>
+													<th>Quantity</th>
+													<th>Unit</th>
+													<th>Code</th>
+													<th>Description</th>
+												</tr>
+											</thead>
+											<tbody>
+												
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
+{% csrf_token %}
+<input type="hidden" name="new" value="{{ new }}">
+<input type="hidden" name="details" value="{{ details }}">
+<input type="hidden" name="det-serie" value="{{ serie }}">
 {% endblock content %}
+
+
+
+
+
+
+<!-- <tr><th>
+<label for="id_serie_id">Serie id:</label></th><td>
+<input id="id_serie_id" maxlength="12" name="serie_id" type="text" value="001-00004545" /></td></tr>
+<tr><th
+<label for="id_supplier">Supplier:</label></th>
+<td><ul class="errorlist"><li>Este campo es obligatorio.</li></ul>
+<select id="id_supplier" name="supplier">
+<option value="" selected="selected">---------</option>
+<option value="20428776110">20428776110 ICR - PERU S.A.</option>
+</select></td></tr>
+<tr><th><label for="id_destination">Destination:</label></th><td>
+<input id="id_destination" maxlength="200" name="destination" type="text" value="nmingu" /></td></tr>
+<tr><th><label for="id_transfer">Transfer:</label></th><td>
+<input id="id_transfer" name="transfer" type="text" value="2014-06-11" /></td></tr>
+<tr><th><label for="id_reference">Reference:</label></th><td>
+<input id="id_reference" maxlength="160" name="reference" type="text" /></td></tr>
+<tr><th><label for="id_motive">Motive:</label></th><td>
+<input id="id_motive" maxlength="40" name="motive" type="text" /></td></tr> -->

@@ -4,18 +4,14 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class Supplier(models.Model):
-    supruc_id = models.CharField(primary_key=True, max_length=11)
+    supplier_id = models.CharField(primary_key=True, max_length=11)
     reason = models.CharField(max_length=200)
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=11)
     flag = models.BooleanField(default=True)
 
-    # class Meta:
-    #     verbose_name = _('Supplier')
-    #     verbose_name_plural = _('Suppliers')
-
     def __unicode__(self):
-        return "%s %s"%(self.sepruc, self.reason)
+        return "%s %s"%(self.supplier_id, self.reason)
 
 class Unit(models.Model):
     unit_id = models.CharField(primary_key=True, max_length=7)
@@ -74,7 +70,7 @@ class DocumentIn(models.Model):
     #     verbose_name_plural = _('DocumentIns')
 
     def __unicode__(self):
-        return "%s %s"%(self.serie, self.supplier, self.transfer)
+        return "%s %s %s"%(self.serie_id, self.supplier_id, self.transfer)
 
 class DetDocumentIn(models.Model):
     serie = models.ForeignKey(DocumentIn, to_field='serie_id')
@@ -88,7 +84,7 @@ class DetDocumentIn(models.Model):
     #     verbose_name_plural = _('DetDocumentins')
 
     def __unicode__(self):
-        return "%s %s %f %f"%(self.serie, serie.materials, self.quantity, self.price)
+        return "%s %s %f %f"%(self.serie, self.materials, self.quantity, self.price)
 
 # class tmpinput(models.Model):
 #     token = models.CharField(max_length=8)

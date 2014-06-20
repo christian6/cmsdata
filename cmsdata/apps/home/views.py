@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from django.http import Http404, HttpResponseRedirect
+import json
+
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_list_or_404
 from django.views.generic.base import TemplateView, View
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
+from django.utils import simplejson
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.template import RequestContext
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Count
 
 from .forms import *
 from .models import *
@@ -68,7 +72,7 @@ class ViewListDocumentEntry(TemplateView):
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         context = super(ViewListDocumentEntry, self).get_context_data(**kwargs)
-        if request.GET.get('search') != '':
+        if request.GET.get('search') is not None:
             if request.GET.get('search') == 'status':
                 model = DocumentIn.objects.filter(flag=True, status=request.GET.get('status'))
             else:
@@ -78,6 +82,7 @@ class ViewListDocumentEntry(TemplateView):
                     model = DocumentIn.objects.filter(flag=True, transfer__range=(request.GET.get('dstart'), request.GET.get('dend')) )
         else:
             model = DocumentIn.objects.filter(flag=True, status='PE')
+
         paginator = Paginator(model, 10)
         page = request.GET.get('page')
         try:
@@ -91,6 +96,44 @@ class ViewListDocumentEntry(TemplateView):
 
 class ViewDocumentIn(TemplateView):
     template_name = "home/documentin.html"
+    def get(self, request, *args, **kwargs):
+        context = super(ViewDocumentIn, self).get_context_data(**kwargs)
+        context['serie'] = '' if request.GET.get('serie') is None else request.GET.get('serie')
+        context['new'] = '1' if request.GET.get('new') is None else '0'
+        context['details'] = '1' if request.GET.get('details') is not None else '0'
+        return render_to_response(self.template_name, context, context_instance=RequestContext(request))
+
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            context = {}
+            try:
+                # valid ruc supplier
+                counter = Supplier.objects.filter(pk=request.POST.get('supplier_id')).aggregate(Count=Count('supplier_id'))
+                if counter['Count'] == 0:
+                    # request Data json
+                    data = json.loads(request.POST.get('data_s'))
+                    data['flag'] = True
+                    data['supplier_id'] = data['ruc']
+                    form = addSupplierForm(data)
+                    if form.is_valid():
+                        form.save()
+                form = addDocumentInForm(request.POST)
+                print form
+                print form.is_valid()
+                if form.is_valid():
+                    add = form.save(commit=False)
+                    add.status = 'PE'
+                    add.flag = True
+                    add.save()
+                    context['status'] = True
+                    context['serie'] = request.POST.get('serie_id')
+                else:
+                    context['status'] = False
+            except Exception, e:
+                print e
+                context['status'] = False
+            return HttpResponse(simplejson.dumps(context), mimetype='application/json')
+
 
 class ViewDocumentOut(TemplateView):
     template_name = "home/documentin.html"
@@ -100,37 +143,3 @@ class ViewMaterials(TemplateView):
 
 class ViewSupplier(TemplateView):
     template_name = "home/documentin.html"
-
-
-"""
-import time, urllib2
-from bs4 import BeautifulSoup
-
-def gethtml(url):
-    try:
-        req = urllib2.Request(url)
-        return urllib2.urlopen(req).read()
-    except Exception, e:
-        print 'Error Content Error'
-        return ''
-
-url = 'http://www.sunat.gob.pe/w/wapS01Alias?ruc=20428776110'
-data = gethtml(url)
-#print data
-soup = BeautifulSoup(data)
-#tag = soup.body.p.small
-#print tag.small.contents[1].string
-#tag= soup.select('p > small')
-#print tag.contents[0]
-#print tag.string
-tag = soup.find_all('small')
-for x in tag:
-    # print x
-    ts = BeautifulSoup(x.__str__())
-    print ts.body.small.contents.__len__()
-    print unicode(ts.body.small.contents[0].string)
-    if ts.body.small.contents[0].string.startswith('Direcci'):
-        print ts.body.small.contents[2]
-#print tag
-
-"""

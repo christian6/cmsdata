@@ -60,12 +60,14 @@
 				</article>
 				<article>
 					<div class="table-responsive">
-						<table class="table table-hover table condensed table-striped">
+						<div class="panel panel-primary">
+							<div class="panel-body">
+								<table class="table table-hover table condensed table-striped">
 							<caption>
 								<a href="{% url 'view_add_docin' %}" class="btn btn-warning btn-xs text-black pull-left"><span class="glyphicon glyphicon-file"></span> New Document</a>
 							</caption>
 							<thead>
-								<tr>
+								<tr class="brand-primary">
 									<th></th><th>Serie ID</th><th>Supplier</th><th>Campany Name</th><th>Transfer</th><th>Stattus</th><th></th>
 								</tr>
 							</thead>
@@ -73,13 +75,13 @@
 								{% for x in documents %}
 									<tr>
 										<td>{{ forloop.counter }}</td>
-										<td>{{ x.serie }}</td>
+										<td>{{ x.serie_id }}</td>
 										<td>{{ x.supplier_id }}</td>
 										<td>{{ x.supplier.reason }}</td>
 										<td>{{ x.transfer }}</td>
 										<td>{{ x.status }}</td>
 										<td>
-											<a href="{% url 'view_add_docin' %}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
+											<a href="{% url 'view_add_docin' %}?new=0&details=1&serie={{ x.serie_id }}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
 										</td>
 									</tr>
 								{% empty %}
@@ -95,20 +97,22 @@
 								<tr>
 									<td colspan="7" class="text-center">
 										<ul class="pagination">
-											{% if supply.has_preveous %}
+											{% if documents.has_preveous %}
 												<li><a href="?page=1">&laquo;</a></li>	
-												<li><a href="?page={{ supply.previous_page_number }}">&laquo;</a></li>	
+												<li><a href="?page={{ documents.previous_page_number }}">&laquo;</a></li>	
 											{% endif %}								
-											<li><a> Page {{ supply.number }} of {{ supply.paginator.num_pages }}</a></li>
-											{% if supply.has_next %}
-												<li><a href="?page={{ supply.next_page_number }}">&raquo;</a></li>
-												<li><a href="?page={{ supply.paginator.num_pages }}">&raquo;</a></li>
+											<li><a> Page {{ documents.number }} of {{ documents.paginator.num_pages }}</a></li>
+											{% if documents.has_next %}
+												<li><a href="?page={{ documents.next_page_number }}">&raquo;</a></li>
+												<li><a href="?page={{ documents.paginator.num_pages }}">&raquo;</a></li>
 											{% endif %}
 										</ul>
 									</td>
 								</tr>
 							</tfoot>
 						</table>
+							</div>
+						</div>
 					</div>
 				</article>
 			</section>
