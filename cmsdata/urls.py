@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'cmsdata.views.home', name='home'),
     # url(r'^cmsdata/', include('cmsdata.foo.urls')),
     url(r'', include('cmsdata.apps.home.urls')),
+    url(r'^restful/', include('cmsdata.apps.wservices.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

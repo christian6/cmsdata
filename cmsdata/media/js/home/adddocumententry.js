@@ -3,35 +3,24 @@ $(document).ready(function() {
 	//$(".bedside").hide();
 	$(".btn-new").on("click", showBedside);
 	$(".btn-supplier").click(function () {
-		$.ajax({
-			url: 'http://www.sunat.gob.pe/w/wapS01Alias',
-			type: 'GET',
-			//dataType: 'text', //'default: Intelligent Guess (Other values: xml, json, script, or html)',
-			data: {ruc: '10704928501'},
-			crossDomain: true,
-    	dataType: 'jsonp',
-			success: function (response) {
-				console.log(""+response+"");
-			},
-			error: function(obj,er,otr) {
-				console.log(er);
-			}
-		});
-		$.get('http://www.sunat.gob.pe/w/wapS01Alias', {ruc: '10704928501'}, function(result) {
-			var browserName = navigator.appName;
-        var doc;
-        if (browserName == 'Microsoft Internet Explorer') {
-            doc = new ActiveXObject('Microsoft.XMLDOM');
-            doc.async = 'false'
-            doc.loadXML(result.results);
-        } else {
-            doc = (new DOMParser()).parseFromString(result.results, 'text/xml');
-        }
-        var xml = doc;
-       	$(xml).each(function () {
-       		console.log(this);
-       	})
-		}, "jsonp");
+		if ($("[name=supplier_id]").val() == "") {
+			$().toastmessage("showWarningToast", "Warning, Ruc invalido, campo vacio.");
+			return false;
+		};
+		if ($("[name=supplier_id]").val().length < 11) {
+			$().toastmessage("showWarningToast", "Warning, Ruc formato invalido.");
+			return false;
+		};
+		if ($("[name=supplier_id]").val().length == 11) {
+			$.getJSON('/restful/search/sunat/ruc/', {ruc: $("[name=supplier_id]").val()}, function(response) {
+					console.log(response);
+					if (response.status) {
+						$("[name=reason]").val(response.reason);
+					}else{
+						$().toastmessage("showErrorToast", "Ups!, nuestro servidor se a quedado dormido, no se a conectado a la Sunat.");
+					};
+			});
+		};
 	});
 });
 
@@ -39,7 +28,7 @@ $(document).ready(function() {
 
 var showBedside = function (event) {
 	event.preventDefault();
-	//$("input[name=new]").val('true');
+	$("input[name=new]").val('true');
 	//$(".bedside").toggle('blind',600);
 	$(this).find('.glyphicon').toggleClass('glyphicon-file').addClass('glyphicon-remove');
 	$(this).find('.text').text($(".btn-new").find('.glyphicon-file').length == 1 ? "New Document" : "Cancelar");
