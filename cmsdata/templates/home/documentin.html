@@ -6,6 +6,7 @@
 <script src="{{ MEDIA_URL }}js/mustache.js"></script>
 <script src="{{ MEDIA_URL }}js/home/adddocumententry.js"></script>
 <script src="{{ MEDIA_URL }}js/getmaterials.js"></script>
+<script src="{{ MEDIA_URL }}js/scrollTo.js"></script>
 {% endblock scripts %}
 {% block menu %}
 {% endblock menu %}
@@ -156,6 +157,8 @@
 													<th>Unit</th>
 													<th>Code</th>
 													<th>Description</th>
+													<th></th>
+													<th></th>
 												</tr>
 											</thead>
 											<tbody>
@@ -175,4 +178,53 @@
 <input type="hidden" name="new" value="{{ new }}">
 <input type="hidden" name="details" value="{{ details }}">
 <input type="hidden" name="det-serie" value="{{ serie }}">
+<!-- block modals -->
+<div class="modal fade medit">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header bg-warning">
+				<a class="close" data-dismiss="modal">&times;</a>
+				<h4>Edit Quantity Materials</h4>
+			</div>
+			<div class="modal-body bg-warning">
+				<div class="form-group">
+					<label class="control-label">Code</label>
+					<input type="hidden" name="id_edit">
+					<input type="text" maxlength="15" class="form-control" name="materials_edit" readonly>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Quantity Edit</label>
+					<input type="number" class="form-control" name="quantity_edit">
+				</div>
+				<div class="form-group">
+					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+					<button class="btn btn-warning text-black pull-right"><span class="glyphicon glyphicon-pencil"></span> Edit Quantity</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade mdel">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content brand-danger">
+			<div class="modal-body">
+				<a class="close" data-dismiss="modal">&times;</a>
+					<h4>Delete Materials</h4>
+				<p>
+					want to <q>remove</q> the <strong>materials</strong>?
+				</p>
+				<div class="form-group">
+					<label class="control-label">Code</label>
+					<input type="hidden" name="id_del">
+					<input type="text" maxlength="15" class="form-control" name="materials_del" readonly>
+				</div>	
+				<div class="form-group">
+					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+					<button class="btn btn-danger text-black pull-right"><span class="glyphicon glyphicon-trash"></span> Del Materials</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- endblock -->
 {% endblock content %}

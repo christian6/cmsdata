@@ -68,19 +68,25 @@ class JSONSave_DocumentInDetails(View):
             context = {}
             try:
                 # search materials exists
-                counter = DetDocumentIn.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials_id'))
-                data = request.POST
+                counter = DetDocumentIn.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials'))
                 if counter['counter'] > 0:
-                    qu = DetDocumentIn.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials'))
-                    data['quantity'] = (data['quantity'] + qu[0].quantity)
-                    form = forms.addDocumentInDetailsForm(data, instance=qu)
+                    qu = DetDocumentIn.objects.get(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials'))
+                    quantity = qu.quantity
+                    form = forms.addDocumentInDetailsForm(request.POST, instance=qu)
+                    if form.is_valid():
+                        add = form.save(commit=False)
+                        add.quantity = (quantity + add.quantity)
+                        add.save()
+                        context['status'] = True
+                    else:
+                        context['status'] = False
                 else:
-                    form = forms.addDocumentInDetailsForm(data)
-                if form.is_valid():
-                    form.save()
-                    context['status'] = True
-                else:
-                    context['status'] = False
+                    form = forms.addDocumentInDetailsForm(request.POST)
+                    if form.is_valid():
+                        form.save()
+                        context['status'] = True
+                    else:
+                        context['status'] = False
             except ObjectDoesNotExist:
                 context['status'] = False
             response.write(simplejson.dumps(context))

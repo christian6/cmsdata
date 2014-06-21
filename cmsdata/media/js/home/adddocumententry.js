@@ -27,24 +27,58 @@ $(document).ready(function() {
 	});
 	$(".btn-add-in").on("click", aggregateDetIn);
 	showDetails();
+	$(document).on("click", ".btn-edit-mat", showEditMaterials);
+	$(document).on("click", ".btn-del-mat", showDelMaterials);
 });
 
 var dataProvider = new Object();
 // functions
+
+var showDelMaterials = function (event) {
+	var id = $(this).attr("idid"),
+			mid = $(this).attr("idmat");
+			$("input[name=id_del]").val(id);
+			$("input[name=materials_del]").val(mid);
+	$(".mdel").modal("show");
+}
+var showEditMaterials = function (event) {
+	var id = $(this).attr("idid"),
+			mid = $(this).attr("idmat"),
+			qua = $(this).val();
+			$("input[name=id_edit]").val(id);
+			$("input[name=materials_edit]").val(mid);
+			$("input[name=quantity_edit]").val(qua);
+	$(".medit").modal("show");
+}
 var listDocumentInDetails = function () {
 	var $serie = $("[name=det-serie]");
 	if ($serie.val().trim() != "") {
 		$.getJSON('/restful/document/in/details/list/', {serie: $serie.val()}, function(response) {
 				console.log(response);
 				if (response.status) {
-					var template = "<tr class=\"{{ id }}\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td></tr>";
-					var $tb = $(".table-detailsIn > tbody");
+					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
+					var $tb = $(".table-detailsIn > tbody"),
+							$mid = $(".id-mat").html();
 					$tb.empty();
 					for (var x in response.list){
 						response.list[x].item = (parseInt(x) + 1)
+						if ($mid == response.list[x].materiales_id) {
+							response.list[x].addnow = "success"
+						};
 						$tb.append(Mustache.render(template, response.list[x]));
 					}
 				};
+		});
+		$(".table-detailsIn > tbody > .success").ScrollTo({
+			duration: 600,
+			callback: function () {
+				setTimeout(function() {
+					$(".well").ScrollTo({
+						duration: 600
+					});
+					$("[name=description]").focus();
+				}, 800);
+			}
 		});
 	};
 }
@@ -89,6 +123,7 @@ var showDetails = function () {
 	if (!Boolean(parseInt($newd.val())) && Boolean(parseInt($details.val())) && $serie.val() != "") {
 		$(".btn-bedside, .bedside").hide("slide","fast");	
 		$(".show-details").show('blind',600);
+		listDocumentInDetails();
 	};
 }
 var saveBedside = function (event) {
