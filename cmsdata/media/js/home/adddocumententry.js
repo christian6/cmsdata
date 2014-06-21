@@ -32,7 +32,21 @@ $(document).ready(function() {
 var dataProvider = new Object();
 // functions
 var listDocumentInDetails = function () {
-	
+	var $serie = $("[name=det-serie]");
+	if ($serie.val().trim() != "") {
+		$.getJSON('/restful/document/in/details/list/', {serie: $serie.val()}, function(response) {
+				console.log(response);
+				if (response.status) {
+					var template = "<tr class=\"{{ id }}\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td></tr>";
+					var $tb = $(".table-detailsIn > tbody");
+					$tb.empty();
+					for (var x in response.list){
+						response.list[x].item = (parseInt(x) + 1)
+						$tb.append(Mustache.render(template, response.list[x]));
+					}
+				};
+		});
+	};
 }
 var aggregateDetIn = function (event) {
 	var data =  new Object(),
@@ -73,7 +87,7 @@ var showDetails = function () {
 			$details = $("input[name=details]"),
 			$serie = $("input[name=det-serie]");
 	if (!Boolean(parseInt($newd.val())) && Boolean(parseInt($details.val())) && $serie.val() != "") {
-		$(".btn-bedside").hide("slide","fast");	
+		$(".btn-bedside, .bedside").hide("slide","fast");	
 		$(".show-details").show('blind',600);
 	};
 }

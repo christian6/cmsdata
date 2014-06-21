@@ -9,10 +9,11 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 
 from cmsdata.apps.home import forms
 
-from cmsdata.apps.home.models import Materials
+from cmsdata.apps.home.models import *
 
 class JSONDescription_Materials(View):
     def get(self, request, *args, **kwargs):
@@ -67,7 +68,14 @@ class JSONSave_DocumentInDetails(View):
             context = {}
             try:
                 # search materials exists
-                form = forms.addDocumentInDetailsForm(request.POST)
+                counter = DetDocumentIn.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials_id'))
+                data = request.POST
+                if counter['counter'] > 0:
+                    qu = DetDocumentIn.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials'))
+                    data['quantity'] = (data['quantity'] + qu[0].quantity)
+                    form = forms.addDocumentInDetailsForm(data, instance=qu)
+                else:
+                    form = forms.addDocumentInDetailsForm(data)
                 if form.is_valid():
                     form.save()
                     context['status'] = True
@@ -78,6 +86,19 @@ class JSONSave_DocumentInDetails(View):
             response.write(simplejson.dumps(context))
             return response
 
+class JSONList_DocumentInDetails(View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse()
+        response['content_type'] = 'application/json'
+        context = {}
+        try:
+            details = DetDocumentIn.objects.filter(serie_id__exact=request.GET.get('serie')).order_by('materials__matname')
+            context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
+            context['status'] = True
+        except ObjectDoesNotExist:
+            context['status'] = False
+        response.write(simplejson.dumps(context))
+        return response
 
 class JsonSunatData(View):
     def get(self, request, *args, **kwargs):

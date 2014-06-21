@@ -83,8 +83,8 @@ class DetDocumentIn(models.Model):
     #     verbose_name = _('DetDocumentin')
     #     verbose_name_plural = _('DetDocumentins')
 
-    def __unicode__(self):
-        return "%s %s %f %f"%(self.serie, self.materials, self.quantity, self.price)
+#     def __unicode__(self):
+#         return "%s %s %f %f"%(self.serie, self.materials, self.quantity, self.price)
 
 # class tmpinput(models.Model):
 #     token = models.CharField(max_length=8)

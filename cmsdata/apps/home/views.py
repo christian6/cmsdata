@@ -118,8 +118,6 @@ class ViewDocumentIn(TemplateView):
                     if form.is_valid():
                         form.save()
                 form = addDocumentInForm(request.POST)
-                print form
-                print form.is_valid()
                 if form.is_valid():
                     add = form.save(commit=False)
                     add.status = 'PE'

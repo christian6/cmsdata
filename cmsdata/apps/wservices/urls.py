@@ -14,4 +14,5 @@ urlpatterns = patterns('',
     url(r'^materials/code/$', JSONCode_Materials.as_view()),
     # Documents Entry Details
     url(r'^document/in/details/save/$', JSONSave_DocumentInDetails.as_view()),
+    url(r'^document/in/details/list/$', JSONList_DocumentInDetails.as_view()),
 )
