@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block scripts %}
+<script src="{{ MEDIA_URL }}js/home/consultmaterials.js"></script>
+{% endblock scripts %}
+{% block content %}
+<div class="container">
+	<div class="well">
+		<header>
+			<h2>Consult Materials</h2>
+		</header>
+		<aside>
+			<div class="bs-callout bs-callout-warning">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group">
+							Search per
+							<label class="radio-inline"><input type="radio" name="search" value="code"> Code</label>
+							<label class="radio-inline"><input type="radio" name="search" value="description"> Description</label>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label class="control-label">Code</label>
+							<input type="text" maxlength="15" name="code" class="form-control" disabled>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label class="control-label">Description</label>
+							<input type="text" class="form-control" name="description" disabled>
+						</div>
+					</div>
+					<div class="col-md-1">
+						<div class="form-group">
+							<label class="control-label">Search</label>
+							<button class="btn btn-block btn-warning btn-search"><span class="glyphicon glyphicon-search"></span></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</aside>
+		<article>
+			<div class="row show-details">
+				
+			</div>
+		</article>
+	</div>
+</div>
+{% endblock content %}

@@ -16,4 +16,5 @@ urlpatterns = patterns('',
     url(r'^add/document/output/$', ViewDocumentOut.as_view(), name='view_add_docout'),
     url(r'^add/materials/$', ViewMaterials.as_view(), name='view_add_mat'),
     url(r'^add/suppliers/$', ViewSupplier.as_view(), name='view_add_sup'),
+    url(r'^consult/materials/$', ViewSearchMaterialsPrice.as_view(), name='view_consult'),
 )

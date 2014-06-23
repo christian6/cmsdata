@@ -96,7 +96,7 @@ class ViewDocumentIn(TemplateView):
     template_name = "home/documentin.html"
     def get(self, request, *args, **kwargs):
         if request.GET.get('serie') is not None:
-            obj = DocumentIn.objects.get(serie__exact=request.GET.get('serie'))
+            obj = DocumentIn.objects.get(pk__exact="%s%s"%(request.GET.get('serie'),request.GET.get('ruc')))
             if obj.status == 'CO':
                 return HttpResponseRedirect(reverse('view_add_docin'))
         context = super(ViewDocumentIn, self).get_context_data(**kwargs)
@@ -121,8 +121,6 @@ class ViewDocumentIn(TemplateView):
                     if form.is_valid():
                         form.save()
                 form = addDocumentInForm(request.POST)
-                print form
-                print form.is_valid()
                 if form.is_valid():
                     add = form.save(commit=False)
                     add.status = 'PE'
@@ -144,7 +142,7 @@ class ViewDocumentOut(TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.GET.get('serie') is not None:
-            obj = DocumentOut.objects.get(serie_id__exact=request.GET.get('serie'))
+            obj = DocumentOut.objects.get(output_id__exact="%s%s"%(request.GET.get('serie'),request.GET.get('ruc')))
             if obj.status == 'CO':
                 return HttpResponseRedirect(reverse('view_add_docout'))
         context = super(ViewDocumentOut, self).get_context_data(**kwargs)
@@ -170,13 +168,16 @@ class ViewDocumentOut(TemplateView):
                     if form.is_valid():
                         form.save()
                 form = addDocumentOutForm(request.POST)
+                print form
+                print form.is_valid()
                 if form.is_valid():
                     add = form.save(commit=False)
                     add.status = 'PE'
                     add.flag = True
                     add.save()
                     context['status'] = True
-                    context['serie'] = request.POST.get('serie_id')
+                    context['serie'] = request.POST.get('serie')
+                    context['ruc'] = request.POST.get('customers')
                 else:
                     context['status'] = False
             except Exception, e:
@@ -216,3 +217,6 @@ class ViewMaterials(TemplateView):
 
 class ViewSupplier(TemplateView):
     template_name = "home/documentin.html"
+
+class ViewSearchMaterialsPrice(TemplateView):
+    template_name = "home/consultmaterials.html"

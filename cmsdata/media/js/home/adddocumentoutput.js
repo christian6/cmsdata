@@ -25,7 +25,7 @@ $(document).ready(function() {
 			searchMaterialCode(this.value);
 		};
 	});
-	$(".btn-add-in").on("click", aggregateDetIn);
+	$(".btn-add-in").on("click", aggregateDetoutput);
 	$(document).on("click", ".btn-edit-mat", showEditMaterials);
 	$(document).on("click", ".btn-del-mat", showDelMaterials);
 	$(".edit-materials").on("click", editMaterials);
@@ -47,7 +47,7 @@ var finishDocument = function (event) {
 			if (result == "Yes") {
 				var data = new Object();
 				data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
-				data['serie'] = $("input[name=det-serie]").val();
+				data['output'] = $("input[name=det-serie]").val()+$("input[name=ruc]").val();
 				$.post('/restful/document/out/finish/', data, function(response) {
 					if (response.status) {
 						location.href = "/add/document/output/";
@@ -72,7 +72,7 @@ var delMaterials = function (event) {
 				data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 				data['id'] = $("input[name=id_del]").val();
 				data['materials'] = $("input[name=materials_del]").val();
-				data['serie'] = $("input[name=det-serie]").val();
+				data['output'] = $("input[name=det-serie]").val()+$("input[name=ruc]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
 					$.post('/restful/document/out/details/delete/', data, function(response) {
 						console.log(response);
@@ -109,7 +109,7 @@ var editMaterials = function (event) {
 				data['id'] = $("input[name=id_edit]").val();
 				data['materials'] = $("input[name=materials_edit]").val();
 				data['quantity'] = $("input[name=quantity_edit]").val();
-				data['serie'] = $("input[name=det-serie]").val();
+				data['output'] = $("input[name=det-serie]").val()+$("input[name=ruc]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
 					$.post('/restful/document/out/details/edit/', data, function(response) {
 						console.log(response);
@@ -147,7 +147,7 @@ var showEditMaterials = function (event) {
 var listDocumentInDetails = function () {
 	var $serie = $("[name=det-serie]");
 	if ($serie.val().trim() != "") {
-		$.getJSON('/restful/document/out/details/list/', {serie: $serie.val()}, function(response) {
+		$.getJSON('/restful/document/out/details/list/', { entry: $serie.val()+$("input[name=ruc]").val() }, function(response) {
 				console.log(response);
 				if (response.status) {
 					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
@@ -176,7 +176,7 @@ var listDocumentInDetails = function () {
 		});
 	};
 }
-var aggregateDetIn = function (event) {
+var aggregateDetoutput = function (event) {
 	var data =  new Object(),
 			pass = false;
 	// validate data
@@ -196,7 +196,7 @@ var aggregateDetIn = function (event) {
 		};
 	});
 	if (pass) {
-		data['serie'] = $("input[name=det-serie]").val();
+		data['output'] = $("input[name=det-serie]").val()+$("input[name=ruc]").val();
 		data['flag'] = true;
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 		$.post('/restful/document/out/details/save/', data, function(response) {
@@ -242,6 +242,7 @@ var saveBedside = function (event) {
 	if (pass) {
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 		data['data_s'] = JSON.stringify(dataCustomers);
+		data['output_id'] = $("input[name=serie]").val()+$("input[name=customers]").val();
 		console.log(data);
 		$.post('', data, function(response) {
 			console.log(response);
@@ -249,6 +250,7 @@ var saveBedside = function (event) {
 				$("input[name=det-serie]").val(response.serie);
 				$("input[name=new]").val("0");
 				$("input[name=details]").val("1");
+				$("input[name=ruc]").val(response.ruc);
 				showDetails();
 			}else{
 				$().toastmessage("showErrorToast","Error<br/> en la transacción, no se a podido completar.");
@@ -267,15 +269,17 @@ var connectCross = function (value) {
 		return false;
 	};
 	if ($("[name="+selector[0]+"]").val().length == 11) {
+		console.info('consulting');
 		$.getJSON('/restful/search/sunat/ruc/', {ruc: $("[name="+selector[0]+"]").val()}, function(response) {
-				if (response.status) {
-					if (selector[0] == "customers") {
-						dataCustomers = response;
-					};
-					$("[name="+selector[1]+"]").val(response.reason);
-				}else{
-					$().toastmessage("showErrorToast", "Ups!, nuestro servidor se a quedado dormido, no se a conectado a la Sunat.");
+			console.log(response);
+			if (response.status) {
+				if (selector[0] == "customers") {
+					dataCustomers = response;
 				};
+				$("[name="+selector[1]+"]").val(response.reason);
+			}else{
+				$().toastmessage("showErrorToast", "Ups!, nuestro servidor se a quedado dormido, no se a conectado a la Sunat.");
+			};
 		});
 	};
 }

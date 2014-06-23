@@ -148,7 +148,6 @@ var listDocumentInDetails = function () {
 	var $serie = $("[name=det-serie]");
 	if ($serie.val().trim() != "") {
 		$.getJSON('/restful/document/in/details/list/', {entry: $serie.val()+$("input[name=ruc]").val()}, function(response) {
-				console.log(response);
 				if (response.status) {
 					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
 					var $tb = $(".table-detailsIn > tbody"),
@@ -243,9 +242,7 @@ var saveBedside = function (event) {
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 		data['data_s'] = JSON.stringify(dataProvider);
 		data['entry_id'] = $("input[name=serie]").val()+""+$("input[name=supplier]").val();
-		console.log(data);
 		$.post('', data, function(response) {
-			console.log(response);
 			if (response.status) {
 				$("input[name=det-serie]").val(response.serie);
 				$("input[name=ruc]").val(response.ruc);
@@ -279,7 +276,6 @@ var showBedside = function (event) {
 		cleanBedside();
 	}
 }
-
 var connectCross = function () {
 	if ($("[name=supplier]").val() == "") {
 		$().toastmessage("showWarningToast", "Warning, Ruc invalido, campo vacio.");
@@ -291,6 +287,7 @@ var connectCross = function () {
 	};
 	if ($("[name=supplier]").val().length == 11) {
 		$.getJSON('/restful/search/sunat/ruc/', {ruc: $("[name=supplier]").val()}, function(response) {
+			console.log(response);
 				if (response.status) {
 					console.info(response);
 					dataProvider = response;

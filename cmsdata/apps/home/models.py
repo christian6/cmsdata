@@ -18,10 +18,6 @@ class Unit(models.Model):
     unit = models.CharField(max_length=11)
     flag = models.BooleanField(default=True)
 
-    # class Meta:
-    #     verbose_name = _('Unit')
-    #     verbose_name_plural = _('Units')
-
     def __unicode__(self):
         return "%s %s"%(self.unit_id, self.unit)
 
@@ -32,10 +28,6 @@ class Materials(models.Model):
     unit = models.ForeignKey(Unit, to_field='unit_id')
     flag = models.BooleanField(default=True)
 
-    # class Meta:
-    #     verbose_name = _('Materials')
-    #     verbose_name_plural = _('Materialss')
-
     def __unicode__(self):
         return "%s %s"%(self.materiales_id, self.matname)
 
@@ -45,10 +37,6 @@ class Customer(models.Model):
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=11)
     flag = models.BooleanField(default=True)
-
-    # class Meta:
-    #     verbose_name = _('Customer')
-    #     verbose_name_plural = _('Customers')
 
     def __unicode__(self):
         return "%s %s"%(self.customers_id, self.reason)
@@ -66,10 +54,6 @@ class DocumentIn(models.Model):
     status = models.CharField(max_length=2, default='PE')
     flag = models.BooleanField(default=True)
 
-    # class Meta:
-    #     verbose_name = _('DocumentIn')
-    #     verbose_name_plural = _('DocumentIns')
-
     def __unicode__(self):
         return "%s %s %s %s"%(self.entry_id, self.serie, self.supplier_id, self.transfer)
 
@@ -80,18 +64,8 @@ class DetDocumentIn(models.Model):
     price = models.FloatField()
     flag = models.BooleanField(default=True)
 
-    # class Meta:
-    #     verbose_name = _('DetDocumentin')
-    #     verbose_name_plural = _('DetDocumentins')
-
     def __unicode__(self):
         return "%s %s %f %f"%(self.entry, self.materials, self.quantity, self.price)
-
-# class tmpinput(models.Model):
-#     token = models.CharField(max_length=8)
-#     materials = models.ForeignKey(Materials, to_field='materiales_id')
-#     quantity = models.FloatField()
-#     price = models.FloatField()
 
 class DocumentOut(models.Model):
     output_id = models.CharField(primary_key=True, max_length=23)
@@ -109,12 +83,8 @@ class DocumentOut(models.Model):
     status = models.CharField(max_length=2, default='PE')
     flag = models.BooleanField(default=True)
 
-    # class Meta:
-    #     verbose_name = _('DocumentOut')
-    #     verbose_name_plural = _('DocumentOuts')
-
     def __unicode__(self):
-        return "%s %s %s"%(self.output_id ,self.serie, self.customers, self.transfer)
+        return "%s %s %s %s"%(self.output_id, self.serie, self.customers, self.transfer)
 
 class DetDocumentOut(models.Model):
     output = models.ForeignKey(DocumentOut, to_field='output_id')
@@ -122,10 +92,6 @@ class DetDocumentOut(models.Model):
     quantity = models.FloatField()
     price = models.FloatField()
     flag = models.BooleanField(default=True)
-
-    # class Meta:
-    #     verbose_name = _('DetDocumentOut')
-    #     verbose_name_plural = _('DetDocumentOuts')
 
     def __unicode__(self):
         return "%s %s %f %f"%(self.output, self.materials, self.quantity, self.price)

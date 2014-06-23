@@ -111,7 +111,7 @@ class JSONEdit_DocumentEntryDetails(JSONResponseMixin, View):
             context = {}
             try:
                 # Recover object to edit
-                obj = DetDocumentIn.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), serie_id=request.POST.get('serie'))
+                obj = DetDocumentIn.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), entry_id=request.POST.get('entry'))
                 obj.quantity = request.POST.get('quantity')
                 obj.save()
                 context['status'] = True
@@ -124,7 +124,8 @@ class JSONDelete_DocumentEntryDetails(JSONResponseMixin, View):
         if request.is_ajax():
             context = {}
             try:
-                obj = DetDocumentIn.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), serie_id=request.POST.get('serie'))
+                # recover object to delete
+                obj = DetDocumentIn.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), entry_id=request.POST.get('entry'))
                 obj.delete()
                 context['status'] = True
             except ObjectDoesNotExist:
@@ -164,11 +165,12 @@ class JSONSave_DocumentOutputDetails(JSONResponseMixin, View):
             context = {}
             try:
                 # search materials exists
-                counter = DetDocumentOut.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials'))
+                counter = DetDocumentOut.objects.filter(output_id__exact=request.POST.get('output'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials'))
                 if counter['counter'] > 0:
-                    qu = DetDocumentOut.objects.get(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials'))
+                    qu = DetDocumentOut.objects.get(output_id__exact=request.POST.get('output'), materials_id=request.POST.get('materials'))
                     quantity = qu.quantity
                     form = forms.addDocumentOutDetailsForm(request.POST, instance=qu)
+                    print form.is_valid()
                     if form.is_valid():
                         add = form.save(commit=False)
                         add.quantity = (quantity + add.quantity)
@@ -178,6 +180,7 @@ class JSONSave_DocumentOutputDetails(JSONResponseMixin, View):
                         context['status'] = False
                 else:
                     form = forms.addDocumentOutDetailsForm(request.POST)
+                    print form.is_valid()
                     if form.is_valid():
                         form.save()
                         context['status'] = True
@@ -193,7 +196,7 @@ class JSONEdit_DocumentOutputDetails(JSONResponseMixin, View):
             context = {}
             try:
                 # Recover object to edit
-                obj = DetDocumentOut.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), serie_id=request.POST.get('serie'))
+                obj = DetDocumentOut.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), output_id=request.POST.get('output'))
                 obj.quantity = request.POST.get('quantity')
                 obj.save()
                 context['status'] = True
@@ -206,7 +209,7 @@ class JSONDelete_DocumentOutputDetails(JSONResponseMixin, View):
         if request.is_ajax():
             context = {}
             try:
-                obj = DetDocumentOut.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), serie_id=request.POST.get('serie'))
+                obj = DetDocumentOut.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), output_id=request.POST.get('output'))
                 obj.delete()
                 context['status'] = True
             except ObjectDoesNotExist:
@@ -218,7 +221,7 @@ class JSONFinish_DocumentOutput(JSONResponseMixin, View):
         if request.is_ajax():
             context = {}
             try:
-                obj = DocumentOut.objects.get(pk__exact=request.POST.get('serie'))
+                obj = DocumentOut.objects.get(pk__exact=request.POST.get('output'))
                 obj.status = 'CO'
                 obj.save()
                 context['status'] = True
@@ -230,14 +233,25 @@ class JSONList_DocumentOutputDetails(JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         context = {}
         try:
-            details = DetDocumentOut.objects.filter(serie_id__exact=request.GET.get('serie')).order_by('materials__matname')
+            details = DetDocumentOut.objects.filter(output_id__exact=request.GET.get('entry')).order_by('materials__matname')
             context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
             context['status'] = True
         except ObjectDoesNotExist:
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)
 
+class JSONSearch_Price(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            context['status'] = True
+        except Exception, e:
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
 
+"""
+    search in cross domain
+"""
 class JsonSunatData(View):
     def get(self, request, *args, **kwargs):
         context = {}

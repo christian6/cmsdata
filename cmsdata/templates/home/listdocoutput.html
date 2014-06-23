@@ -65,21 +65,22 @@
 							</caption>
 							<thead>
 								<tr class="brand-primary">
-									<th></th><th>Serie ID</th><th>Supplier</th><th>Campany Name</th><th>Transfer</th><th>Status</th><th></th>
+									<th></th><th>ID</th><th>Serie</th><th>Supplier</th><th>Campany Name</th><th>Transfer</th><th>Status</th><th></th>
 								</tr>
 							</thead>
 							<tbody>
 								{% for x in documents %}
 									<tr>
 										<td>{{ forloop.counter }}</td>
-										<td>{{ x.serie_id }}</td>
+										<td>{{ x.output_id }}</td>
+										<td>{{ x.serie }}</td>
 										<td>{{ x.customers_id }}</td>
 										<td>{{ x.customers.reason }}</td>
 										<td>{{ x.transfer }}</td>
 										<td>{{ x.status }}</td>
 										<td>
 											{% ifequal x.status 'PE'  %} 
-												<a href="{% url 'view_add_docout' %}?new=0&details=1&serie={{ x.serie_id }}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
+												<a href="{% url 'view_add_docout' %}?new=0&details=1&serie={{ x.serie }}&ruc={{ x.customers_id }}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
 											{% endifequal %}
 										</td>
 									</tr>
