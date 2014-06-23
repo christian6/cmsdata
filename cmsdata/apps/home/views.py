@@ -96,13 +96,14 @@ class ViewDocumentIn(TemplateView):
     template_name = "home/documentin.html"
     def get(self, request, *args, **kwargs):
         if request.GET.get('serie') is not None:
-            obj = DocumentIn.objects.get(pk__exact=request.GET.get('serie'))
+            obj = DocumentIn.objects.get(serie__exact=request.GET.get('serie'))
             if obj.status == 'CO':
                 return HttpResponseRedirect(reverse('view_add_docin'))
         context = super(ViewDocumentIn, self).get_context_data(**kwargs)
         context['serie'] = '' if request.GET.get('serie') is None else request.GET.get('serie')
         context['new'] = '1' if request.GET.get('new') is None else '0'
         context['details'] = '1' if request.GET.get('details') is not None else '0'
+        context['ruc'] = '' if request.GET.get('ruc') is None else request.GET.get('ruc')
         return render_to_response(self.template_name, context, context_instance=RequestContext(request))
 
     def post(self, request, *args, **kwargs):
@@ -120,13 +121,16 @@ class ViewDocumentIn(TemplateView):
                     if form.is_valid():
                         form.save()
                 form = addDocumentInForm(request.POST)
+                print form
+                print form.is_valid()
                 if form.is_valid():
                     add = form.save(commit=False)
                     add.status = 'PE'
                     add.flag = True
                     add.save()
                     context['status'] = True
-                    context['serie'] = request.POST.get('serie_id')
+                    context['serie'] = request.POST.get('serie')
+                    context['ruc'] = request.POST.get('supplier')
                 else:
                     context['status'] = False
             except Exception, e:
@@ -147,6 +151,7 @@ class ViewDocumentOut(TemplateView):
         context['serie'] = '' if request.GET.get('serie') is None else request.GET.get('serie')
         context['new'] = '1' if request.GET.get('new') is None else '0'
         context['details'] = '1' if request.GET.get('details') is not None else '0'
+        context['ruc'] = '' if request.GET.get('ruc') is None else request.GET.get('ruc')
         return render_to_response(self.template_name, context, context_instance=RequestContext(request))
 
     def post(self, request, *args, **kwargs):

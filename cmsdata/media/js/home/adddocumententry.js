@@ -47,7 +47,7 @@ var finishDocument = function (event) {
 			if (result == "Yes") {
 				var data = new Object();
 				data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
-				data['serie'] = $("input[name=det-serie]").val();
+				data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 				$.post('/restful/document/in/finish/', data, function(response) {
 					if (response.status) {
 						location.href = "/add/document/In/";
@@ -72,7 +72,7 @@ var delMaterials = function (event) {
 				data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 				data['id'] = $("input[name=id_del]").val();
 				data['materials'] = $("input[name=materials_del]").val();
-				data['serie'] = $("input[name=det-serie]").val();
+				data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
 					$.post('/restful/document/in/details/delete/', data, function(response) {
 						console.log(response);
@@ -109,7 +109,7 @@ var editMaterials = function (event) {
 				data['id'] = $("input[name=id_edit]").val();
 				data['materials'] = $("input[name=materials_edit]").val();
 				data['quantity'] = $("input[name=quantity_edit]").val();
-				data['serie'] = $("input[name=det-serie]").val();
+				data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
 					$.post('/restful/document/in/details/edit/', data, function(response) {
 						console.log(response);
@@ -147,7 +147,7 @@ var showEditMaterials = function (event) {
 var listDocumentInDetails = function () {
 	var $serie = $("[name=det-serie]");
 	if ($serie.val().trim() != "") {
-		$.getJSON('/restful/document/in/details/list/', {serie: $serie.val()}, function(response) {
+		$.getJSON('/restful/document/in/details/list/', {entry: $serie.val()+$("input[name=ruc]").val()}, function(response) {
 				console.log(response);
 				if (response.status) {
 					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
@@ -196,7 +196,7 @@ var aggregateDetIn = function (event) {
 		};
 	});
 	if (pass) {
-		data['serie'] = $("input[name=det-serie]").val();
+		data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 		data['flag'] = true;
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 		$.post('/restful/document/in/details/save/', data, function(response) {
@@ -242,11 +242,13 @@ var saveBedside = function (event) {
 	if (pass) {
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 		data['data_s'] = JSON.stringify(dataProvider);
+		data['entry_id'] = $("input[name=serie]").val()+""+$("input[name=supplier]").val();
 		console.log(data);
 		$.post('', data, function(response) {
 			console.log(response);
 			if (response.status) {
 				$("input[name=det-serie]").val(response.serie);
+				$("input[name=ruc]").val(response.ruc);
 				$("input[name=new]").val("0");
 				$("input[name=details]").val("1");
 				showDetails();
