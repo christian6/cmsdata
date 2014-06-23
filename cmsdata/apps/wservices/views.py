@@ -81,9 +81,9 @@ class JSONSave_DocumentInDetails(View):
             context = {}
             try:
                 # search materials exists
-                counter = DetDocumentIn.objects.filter(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials'))
+                counter = DetDocumentIn.objects.filter(entry_id__exact=request.POST.get('entry'), materials_id=request.POST.get('materials')).aggregate(counter=Count('materials'))
                 if counter['counter'] > 0:
-                    qu = DetDocumentIn.objects.get(serie_id__exact=request.POST.get('serie'), materials_id=request.POST.get('materials'))
+                    qu = DetDocumentIn.objects.get(entry_id__exact=request.POST.get('entry'), materials_id=request.POST.get('materials'))
                     quantity = qu.quantity
                     form = forms.addDocumentInDetailsForm(request.POST, instance=qu)
                     if form.is_valid():
@@ -136,7 +136,7 @@ class JSONFinish_DocumentEntry(JSONResponseMixin, View):
         if request.is_ajax():
             context = {}
             try:
-                obj = DocumentIn.objects.get(pk__exact=request.POST.get('serie'))
+                obj = DocumentIn.objects.get(pk__exact=request.POST.get('entry'))
                 obj.status = 'CO'
                 obj.save()
                 context['status'] = True
@@ -150,7 +150,7 @@ class JSONList_DocumentInDetails(View):
         response['content_type'] = 'application/json'
         context = {}
         try:
-            details = DetDocumentIn.objects.filter(serie_id__exact=request.GET.get('serie')).order_by('materials__matname')
+            details = DetDocumentIn.objects.filter(entry_id__exact=request.GET.get('entry')).order_by('materials__matname')
             context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
             context['status'] = True
         except ObjectDoesNotExist:

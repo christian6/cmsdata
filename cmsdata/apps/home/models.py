@@ -55,7 +55,8 @@ class Customer(models.Model):
     
 
 class DocumentIn(models.Model):
-    serie_id = models.CharField(primary_key=True, max_length=12)
+    entry_id = models.CharField(primary_key=True, max_length=23)
+    serie = models.CharField(max_length=12)
     supplier = models.ForeignKey(Supplier)
     destination = models.CharField(max_length=200)
     register = models.DateTimeField(auto_now=True)
@@ -70,10 +71,10 @@ class DocumentIn(models.Model):
     #     verbose_name_plural = _('DocumentIns')
 
     def __unicode__(self):
-        return "%s %s %s"%(self.serie_id, self.supplier_id, self.transfer)
+        return "%s %s %s %s"%(self.entry_id, self.serie, self.supplier_id, self.transfer)
 
 class DetDocumentIn(models.Model):
-    serie = models.ForeignKey(DocumentIn, to_field='serie_id')
+    entry = models.ForeignKey(DocumentIn, to_field='entry_id')
     materials = models.ForeignKey(Materials, to_field='materiales_id')
     quantity = models.FloatField()
     price = models.FloatField()
@@ -83,8 +84,8 @@ class DetDocumentIn(models.Model):
     #     verbose_name = _('DetDocumentin')
     #     verbose_name_plural = _('DetDocumentins')
 
-#     def __unicode__(self):
-#         return "%s %s %f %f"%(self.serie, self.materials, self.quantity, self.price)
+    def __unicode__(self):
+        return "%s %s %f %f"%(self.entry, self.materials, self.quantity, self.price)
 
 # class tmpinput(models.Model):
 #     token = models.CharField(max_length=8)
@@ -93,7 +94,8 @@ class DetDocumentIn(models.Model):
 #     price = models.FloatField()
 
 class DocumentOut(models.Model):
-    serie_id = models.CharField(primary_key=True, max_length=12)
+    output_id = models.CharField(primary_key=True, max_length=23)
+    serie = models.CharField(max_length=12)
     customers = models.ForeignKey(Customer, to_field='customers_id')
     reason = models.CharField(max_length=200)
     startpoint = models.CharField(max_length=200)
@@ -112,10 +114,10 @@ class DocumentOut(models.Model):
     #     verbose_name_plural = _('DocumentOuts')
 
     def __unicode__(self):
-        return "%s %s %s"%(self.serie_id, self.customers, self.transfer)
+        return "%s %s %s"%(self.output_id ,self.serie, self.customers, self.transfer)
 
 class DetDocumentOut(models.Model):
-    serie = models.ForeignKey(DocumentOut, to_field='serie_id')
+    output = models.ForeignKey(DocumentOut, to_field='output_id')
     materials = models.ForeignKey(Materials, to_field='materiales_id')
     quantity = models.FloatField()
     price = models.FloatField()
@@ -126,7 +128,7 @@ class DetDocumentOut(models.Model):
     #     verbose_name_plural = _('DetDocumentOuts')
 
     def __unicode__(self):
-        return "%s %s %f %f"%(self.serie, self.materials, self.quantity, self.price)
+        return "%s %s %f %f"%(self.output, self.materials, self.quantity, self.price)
 
 class userProfile(models.Model):
     user = models.OneToOneField(User)
