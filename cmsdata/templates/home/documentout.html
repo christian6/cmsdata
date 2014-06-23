@@ -1,8 +1,251 @@
 {% extends "base.html" %}
+{% block title %}
+	Document Out
+{% endblock title %}
+{% block scripts %}
+<script src="{{ MEDIA_URL }}js/mustache.js"></script>
+<script src="{{ MEDIA_URL }}js/home/adddocumentoutput.js"></script>
+<script src="{{ MEDIA_URL }}js/getmaterials.js"></script>
+<script src="{{ MEDIA_URL }}js/scrollTo.js"></script>
+{% endblock scripts %}
 {% block content %}
 	<div class="container">
 		<div class="well">
-			<h1>CMS DATA</h1>
+			<header>
+				<h1>
+					Add Document Output <br>
+					<small class="show-details">Details for document <span class="serie"></span></small>
+				</h1>
+			</header>
+			<section class="btn-bedside">
+				<div class="btn-group">
+					<button class="btn btn-warning text-black btn-new"><span class="glyphicon glyphicon-file"></span> <span class="text">New Document</span></button>
+					<button class="btn btn-warning text-black ctrl-disabled btn-clean" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-trash"></span> Clean Fields</button>
+					<button class="btn btn-warning text-black ctrl-disabled btn-save" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-floppy-disk"></span> Save Document</button>
+				</div>
+			</section>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-warning bedside">
+					<div class="panel-heading">
+						<strong>Bedside Document</strong><br>
+						<small>Fields Required *</small>
+					</div>
+						<div class="panel-body panel-bedside">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Serie *</label>
+										<input type="text" class="form-control control ctrl-disabled" maxlength="12" name="serie_id" placeholder="000-00000000" title="Ingress Seria Document" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">RUC Customers *</label>
+										<div class="input-group">
+											<input type="text" class="form-control control ctrl-disabled" maxlength="11" name="customers" placeholder="00000000000" title="Ingress RUC Supplier" REQUIRED disabled>
+											<span class="input-group-btn">
+												<button class="btn btn-default btn-customers control ctrl-disabled" value="customers|reason" type="button" disabled><span class="glyphicon glyphicon-search"></span></button>
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Company Name</label>
+										<input type="text" class="form-control control ctrl-disabled" name="reason" placeholder="Apple Inc" title="Ingress Company Name" disabled>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Start Point *</label>
+										<input type="text" class="form-control control ctrl-disabled" name="startpoint" placeholder="Address send" title="Ingress Destination" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">End Point *</label>
+										<input type="text" class="form-control control ctrl-disabled" name="endpoint" placeholder="Address delivery" title="Ingress Delivery" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Transfer *</label>
+										<input type="text" class="form-control control ctrl-disabled" maxlength="10" name="transfer" placeholder="yyyy-mm-dd" title="Ingress Date Transfer" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">RUC Carrier</label>
+										<div class="input-group">
+											<input type="text" class="form-control control ctrl-disabled" name="transruc" placeholder="RUC Carrier" title="Ingress RUC Carrier" disabled>
+											<span class="input-group-btn">
+												<button class="btn btn-default btn-carrier control ctrl-disabled" type="button" value="transruc|transreason" disabled><span class="glyphicon glyphicon-search"></span></button>
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Carrier Name</label>
+										<input type="text" class="form-control control ctrl-disabled" name="transreason" placeholder="Carrier Name" title="Ingress Carrier Name, Not required" disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">Plaque</label>
+										<input type="text" class="form-control control ctrl-disabled" maxlength="7" name="plate" placeholder="000-000" title="Ingress Plaque" REQUIRED disabled>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-gruop has-warning">
+										<label class="control-label">License</label>
+										<input type="text" class="form-control control ctrl-disabled" maxlength="10" name="license" placeholder="Q00000000" title="Ingress License" REQUIRED disabled>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="panel panel-primary show-details">
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="alert alert-warning">
+										<div class="row">
+											<div class="col-md-4">
+												<div class="form-group">
+													<label class="control-label">Description Materials</label>
+													<input type="text" class="form-control" name="description" placeholder="Ingress Description">
+													<ul id="matname-global" class="matname-global"></ul>
+												</div>
+											</div>
+											<div class="col-md-2">
+												<div class="form-group">
+													<label class="control-label">Code Materials</label>
+													<input type="text" class="form-control" maxlength="15" placeholder="Ingress Code" name="code-material">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label class="control-label">Meter Materials</label>
+													<select class="form-control" name="meter">
+													</select>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="alert alert-success">
+													<strong>Details</strong>
+													<table class="tb-details">
+														<tbody></tbody>
+													</table>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label class="control-label">Quantity</label>
+														<input type="number" class="form-control" min="0" name="quantity">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label class="control-label">Price</label>
+														<input type="number" class="form-control" min="0" name="price">
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group">
+														<label class="control-label">Aggregate</label>
+														<button class="btn btn-warning btn-block text-black btn-add-in"><span class="glyphicon glyphicon-plus"></span></button>
+													</div>
+												<div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="table-responsive">
+										<table class="table table-hover table-condensed table-detailsIn">
+											<caption>
+												<button class="btn btn-primary btn-sm pull-right btn-finish-document"><span class="glyphicon glyphicon-floppy-saved"></span> Finish Document</button>
+											</caption>
+											<thead>
+												<tr class="brand-primary text-white">
+													<th>Item</th>
+													<th>Quantity</th>
+													<th>Unit</th>
+													<th>Code</th>
+													<th>Description</th>
+													<th></th>
+													<th></th>
+												</tr>
+											</thead>
+											<tbody>
+												
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+{% csrf_token %}
+<input type="hidden" name="new" value="{{ new }}">
+<input type="hidden" name="details" value="{{ details }}">
+<input type="hidden" name="det-serie" value="{{ serie }}">
+<!-- block modals -->
+<div class="modal fade medit">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header bg-warning">
+				<a class="close" data-dismiss="modal">&times;</a>
+				<h4>Edit Quantity Materials</h4>
+			</div>
+			<div class="modal-body bg-warning">
+				<div class="form-group">
+					<label class="control-label">Code</label>
+					<input type="hidden" name="id_edit">
+					<input type="text" maxlength="15" class="form-control" name="materials_edit" readonly>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Quantity Edit</label>
+					<input type="number" class="form-control" min="1" name="quantity_edit">
+				</div>
+				<div class="form-group">
+					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+					<button class="btn btn-warning text-black pull-right edit-materials"><span class="glyphicon glyphicon-pencil"></span> Edit Quantity</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade mdel">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content brand-danger">
+			<div class="modal-body">
+				<a class="close" data-dismiss="modal">&times;</a>
+					<h4>Delete Materials</h4>
+				<p>
+					want <q>remove</q> the <strong>materials</strong>?
+				</p>
+				<div class="form-group">
+					<label class="control-label">Code</label>
+					<input type="hidden" name="id_del">
+					<input type="text" maxlength="15" class="form-control" name="materials_del" readonly>
+				</div>	
+				<div class="form-group">
+					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+					<button class="btn btn-danger text-black pull-right del-materials"><span class="glyphicon glyphicon-trash"></span> Del Materials</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- endblock -->
 {% endblock content %}

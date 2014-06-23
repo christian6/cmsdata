@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-	List Document Entry
+	List Document Output
 {% endblock title %}
 {% block scripts %}
 <script src="{{ MEDIA_URL }}js/home/listdocentry.js"></script>
@@ -9,7 +9,7 @@
 	<div class="container">
 		<div class="well">
 			<aside>
-				<h2>Document List Entry</h2>
+				<h2>Document List Output</h2>
 			</aside>
 			<section>
 				<article>
@@ -61,7 +61,7 @@
 							<div class="panel-body">
 								<table class="table table-hover table condensed table-striped">
 							<caption>
-								<a href="{% url 'view_add_docin' %}" class="btn btn-warning btn-xs text-black pull-left"><span class="glyphicon glyphicon-file"></span> New Document</a>
+								<a href="{% url 'view_add_docout' %}" class="btn btn-warning btn-xs text-black pull-left"><span class="glyphicon glyphicon-file"></span> New Document</a>
 							</caption>
 							<thead>
 								<tr class="brand-primary">
@@ -73,13 +73,13 @@
 									<tr>
 										<td>{{ forloop.counter }}</td>
 										<td>{{ x.serie_id }}</td>
-										<td>{{ x.supplier_id }}</td>
-										<td>{{ x.supplier.reason }}</td>
+										<td>{{ x.customers_id }}</td>
+										<td>{{ x.customers.reason }}</td>
 										<td>{{ x.transfer }}</td>
 										<td>{{ x.status }}</td>
 										<td>
 											{% ifequal x.status 'PE'  %} 
-												<a href="{% url 'view_add_docin' %}?new=0&details=1&serie={{ x.serie_id }}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
+												<a href="{% url 'view_add_docout' %}?new=0&details=1&serie={{ x.serie_id }}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
 											{% endifequal %}
 										</td>
 									</tr>

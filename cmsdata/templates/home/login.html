@@ -1,21 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}Login CMS Data{% endblock %}
-{% block style %}
-<link rel="stylesheet" href="{{ MEDIA_URL }}css/home/login.css">
-{% endblock %}
-{% block script %}
-<script src="{{ MEDIA_URL }}js/home/login.js"></script>
-{% endblock %}
-{% block header %}
-<h2>CMS DATA</h2>
+{% block styles %}
+<style>
+	div.content-login {
+		border-radius: 15px;
+		border: 1px solid black;
+		margin-right: 2.6%;
+		margin-left: 2.6%;
+		margin-top: 20px;
+		padding: 15px;
+		position: absolute;
+		top: 0px;
+	}
+	@media (min-width: 768px){
+		div.content-login {
+			margin-right: 20px;
+			right: 0;
+			width: 300px;
+		}
+	}
+	@media (max-width: 767px){
+		div.content-login {
+			position: relative;
+		}
+	}
+</style>
 {% endblock %}
 {% block menu %}{% endblock %}
 {% block content %}
-<div class="content-login">
+
+<div class="content-login brand-danger">
+	<h2>CMS DATA</h2>
 	<form action="" method="POST">
 		{% csrf_token %}
 		{{form.as_p}}
-		<button type="Submit" name="submit" class="btn btn-primary" value="Submit">Ingresar
+		<button type="Submit" name="submit" class="btn btn-danger" value="Submit"> Login
 		 <span class="glyphicon glyphicon-log-in"></span>
 		</button>
 		<div class="content-msg">
@@ -23,4 +42,5 @@
 		</div>
 	</form>	
 </div>
+
 {% endblock %}

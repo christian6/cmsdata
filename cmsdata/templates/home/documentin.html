@@ -8,14 +8,12 @@
 <script src="{{ MEDIA_URL }}js/getmaterials.js"></script>
 <script src="{{ MEDIA_URL }}js/scrollTo.js"></script>
 {% endblock scripts %}
-{% block menu %}
-{% endblock menu %}
 {% block content %}
 	<div class="container">
 		<div class="well">
 			<header>
 				<h1>
-					Add Document In <br>
+					Add Document Entry <br>
 					<small class="show-details">Details for document <span class="serie"></span></small>
 				</h1>
 			</header>
@@ -148,7 +146,7 @@
 									<div class="table-responsive">
 										<table class="table table-hover table-condensed table-detailsIn">
 											<caption>
-												<button class="btn btn-primary btn-sm pull-right"><span class="glyphicon glyphicon-floppy-saved"></span> Finish Document</button>
+												<button class="btn btn-primary btn-sm pull-right btn-finish-document"><span class="glyphicon glyphicon-floppy-saved"></span> Finish Document</button>
 											</caption>
 											<thead>
 												<tr class="brand-primary text-white">
@@ -194,11 +192,11 @@
 				</div>
 				<div class="form-group">
 					<label class="control-label">Quantity Edit</label>
-					<input type="number" class="form-control" name="quantity_edit">
+					<input type="number" class="form-control" min="1" name="quantity_edit">
 				</div>
 				<div class="form-group">
 					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
-					<button class="btn btn-warning text-black pull-right"><span class="glyphicon glyphicon-pencil"></span> Edit Quantity</button>
+					<button class="btn btn-warning text-black pull-right edit-materials"><span class="glyphicon glyphicon-pencil"></span> Edit Quantity</button>
 				</div>
 			</div>
 		</div>
@@ -211,7 +209,7 @@
 				<a class="close" data-dismiss="modal">&times;</a>
 					<h4>Delete Materials</h4>
 				<p>
-					want to <q>remove</q> the <strong>materials</strong>?
+					want <q>remove</q> the <strong>materials</strong>?
 				</p>
 				<div class="form-group">
 					<label class="control-label">Code</label>
@@ -220,7 +218,7 @@
 				</div>	
 				<div class="form-group">
 					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
-					<button class="btn btn-danger text-black pull-right"><span class="glyphicon glyphicon-trash"></span> Del Materials</button>
+					<button class="btn btn-danger text-black pull-right del-materials"><span class="glyphicon glyphicon-trash"></span> Del Materials</button>
 				</div>
 			</div>
 		</div>

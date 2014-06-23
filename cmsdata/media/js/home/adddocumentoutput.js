@@ -1,11 +1,11 @@
 $(document).ready(function() {
-	$("[name=transfer]").datepicker({ showAnim: "slide", dateFormat: "yy-mm-dd", changeMonth: true, changeYear: true });
 	$(".bedside,.show-details").hide();
+	$("[name=transfer]").datepicker({ showAnim: "slide", dateFormat: "yy-mm-dd", changeMonth: true, changeYear: true });
+	$(".btn-clean").on("click", cleanBedside);
 	$(".btn-new").on("click", showBedside);
 	$(".btn-save").on("click", saveBedside);
-	$(".btn-clean").on("click", cleanBedside);
-	$(".btn-supplier").click(function () {
-		connectCross();
+	$(".btn-customers,.btn-carrier").click(function () {
+		connectCross(this.value);
 	});
 	$("[name=description]").on("keyup", keyUpDescription);
 	$("[name=description]").on("keypress", function (event) {
@@ -26,15 +26,15 @@ $(document).ready(function() {
 		};
 	});
 	$(".btn-add-in").on("click", aggregateDetIn);
-	showDetails();
 	$(document).on("click", ".btn-edit-mat", showEditMaterials);
 	$(document).on("click", ".btn-del-mat", showDelMaterials);
 	$(".edit-materials").on("click", editMaterials);
 	$(".del-materials").on("click", delMaterials);
 	$(".btn-finish-document").on("click", finishDocument);
+	showDetails();
 });
-
-var dataProvider = new Object();
+// varibles
+var dataCustomers = new Object();
 // functions
 var finishDocument = function (event) {
 	event.preventDefault();
@@ -48,9 +48,9 @@ var finishDocument = function (event) {
 				var data = new Object();
 				data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 				data['serie'] = $("input[name=det-serie]").val();
-				$.post('/restful/document/in/finish/', data, function(response) {
+				$.post('/restful/document/out/finish/', data, function(response) {
 					if (response.status) {
-						location.href = "/add/document/In/";
+						location.href = "/add/document/output/";
 					}else{
 						$().toastmessage("showErrorToast", "Error, transaction not fount.");
 					};
@@ -74,7 +74,7 @@ var delMaterials = function (event) {
 				data['materials'] = $("input[name=materials_del]").val();
 				data['serie'] = $("input[name=det-serie]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
-					$.post('/restful/document/in/details/delete/', data, function(response) {
+					$.post('/restful/document/out/details/delete/', data, function(response) {
 						console.log(response);
 						if (response.status) {
 							//listDocumentInDetails();
@@ -111,7 +111,7 @@ var editMaterials = function (event) {
 				data['quantity'] = $("input[name=quantity_edit]").val();
 				data['serie'] = $("input[name=det-serie]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
-					$.post('/restful/document/in/details/edit/', data, function(response) {
+					$.post('/restful/document/out/details/edit/', data, function(response) {
 						console.log(response);
 						if (response.status) {
 							//listDocumentInDetails();
@@ -147,7 +147,7 @@ var showEditMaterials = function (event) {
 var listDocumentInDetails = function () {
 	var $serie = $("[name=det-serie]");
 	if ($serie.val().trim() != "") {
-		$.getJSON('/restful/document/in/details/list/', {serie: $serie.val()}, function(response) {
+		$.getJSON('/restful/document/out/details/list/', {serie: $serie.val()}, function(response) {
 				console.log(response);
 				if (response.status) {
 					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
@@ -199,7 +199,7 @@ var aggregateDetIn = function (event) {
 		data['serie'] = $("input[name=det-serie]").val();
 		data['flag'] = true;
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
-		$.post('/restful/document/in/details/save/', data, function(response) {
+		$.post('/restful/document/out/details/save/', data, function(response) {
 			console.log(response);
 			if (response.status) {
 				// list document in details
@@ -225,7 +225,7 @@ var saveBedside = function (event) {
 	var data = new Object(),
 			pass = false;
 	$(".panel-bedside").find('input').each(function () {
-		if (this.name == "motive" || this.name == "reference") {
+		if (this.name == "transruc" || this.name == "transreason" || this.name == "plate" || this.name == "license") {
 			data[this.name] = this.value;
 			return true;
 		};
@@ -241,7 +241,7 @@ var saveBedside = function (event) {
 	});
 	if (pass) {
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
-		data['data_s'] = JSON.stringify(dataProvider);
+		data['data_s'] = JSON.stringify(dataCustomers);
 		console.log(data);
 		$.post('', data, function(response) {
 			console.log(response);
@@ -256,9 +256,32 @@ var saveBedside = function (event) {
 		}, "json");
 	}
 }
+var connectCross = function (value) {
+	selector = value.split("|");
+	if ($("[name="+selector[0]+"]").val() == "") {
+		$().toastmessage("showWarningToast", "Warning, Ruc invalido, campo vacio.");
+		return false;
+	};
+	if ($("[name="+selector[0]+"]").val().length < 11) {
+		$().toastmessage("showWarningToast", "Warning, Ruc formato invalido.");
+		return false;
+	};
+	if ($("[name="+selector[0]+"]").val().length == 11) {
+		$.getJSON('/restful/search/sunat/ruc/', {ruc: $("[name="+selector[0]+"]").val()}, function(response) {
+				if (response.status) {
+					if (selector[0] == "customers") {
+						dataCustomers = response;
+					};
+					$("[name="+selector[1]+"]").val(response.reason);
+				}else{
+					$().toastmessage("showErrorToast", "Ups!, nuestro servidor se a quedado dormido, no se a conectado a la Sunat.");
+				};
+		});
+	};
+}
 var cleanBedside = function (event) {
 	$(".panel-bedside").find("input").each(function () {
-		if (this.name == "destination") {
+		if (this.name == "startpoint") {
 			this.value = "JR. SAN MARTIN MZA. E  LOTE. 6 LOS HUERTOS DE HUACHIPA (ALT. KM 7 DE LA AUTOPISTA RAMIRO PRIALE) LIMA LIMA LURIGANCHO";
 		}else{
 			this.value = "";	
@@ -276,26 +299,4 @@ var showBedside = function (event) {
 	if ($(".btn-new").find('.glyphicon-file').length == 0) {
 		cleanBedside();
 	}
-}
-
-var connectCross = function () {
-	if ($("[name=supplier]").val() == "") {
-		$().toastmessage("showWarningToast", "Warning, Ruc invalido, campo vacio.");
-		return false;
-	};
-	if ($("[name=supplier]").val().length < 11) {
-		$().toastmessage("showWarningToast", "Warning, Ruc formato invalido.");
-		return false;
-	};
-	if ($("[name=supplier]").val().length == 11) {
-		$.getJSON('/restful/search/sunat/ruc/', {ruc: $("[name=supplier]").val()}, function(response) {
-				if (response.status) {
-					console.info(response);
-					dataProvider = response;
-					$("[name=reason]").val(response.reason);
-				}else{
-					$().toastmessage("showErrorToast", "Ups!, nuestro servidor se a quedado dormido, no se a conectado a la Sunat.");
-				};
-		});
-	};
 }

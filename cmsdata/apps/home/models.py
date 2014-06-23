@@ -40,7 +40,7 @@ class Materials(models.Model):
         return "%s %s"%(self.materiales_id, self.matname)
 
 class Customer(models.Model):
-    custormers_id = models.CharField(primary_key=True, max_length=11)
+    customers_id = models.CharField(primary_key=True, max_length=11)
     reason = models.CharField(max_length=220)
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=11)
@@ -51,7 +51,7 @@ class Customer(models.Model):
     #     verbose_name_plural = _('Customers')
 
     def __unicode__(self):
-        return "%s %s"%(self.custormers_id, self.reason)
+        return "%s %s"%(self.customers_id, self.reason)
     
 
 class DocumentIn(models.Model):
@@ -93,8 +93,8 @@ class DetDocumentIn(models.Model):
 #     price = models.FloatField()
 
 class DocumentOut(models.Model):
-    serie_id = models.CharField(primary_key=True, max_length=11)
-    custormers = models.ForeignKey(Customer, to_field='custormers_id')
+    serie_id = models.CharField(primary_key=True, max_length=12)
+    customers = models.ForeignKey(Customer, to_field='customers_id')
     reason = models.CharField(max_length=200)
     startpoint = models.CharField(max_length=200)
     endpoint = models.CharField(max_length=200)
@@ -103,7 +103,7 @@ class DocumentOut(models.Model):
     transruc = models.CharField(max_length=11, null=True, blank=True)
     transreason = models.CharField(max_length=200, null=True, blank=True)
     plate = models.CharField(max_length=7, null=True, blank=True)
-    license = models.CharField(max_length=10)
+    license = models.CharField(max_length=10, blank=True)
     status = models.CharField(max_length=2, default='PE')
     flag = models.BooleanField(default=True)
 
@@ -112,7 +112,7 @@ class DocumentOut(models.Model):
     #     verbose_name_plural = _('DocumentOuts')
 
     def __unicode__(self):
-        return "%s %s %s"%(self.serie_id, self.custormers, self.transfer)
+        return "%s %s %s"%(self.serie_id, self.customers, self.transfer)
 
 class DetDocumentOut(models.Model):
     serie = models.ForeignKey(DocumentOut, to_field='serie_id')
