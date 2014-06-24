@@ -11,3 +11,26 @@ var changeSearch = function (event) {
 		};
 	});
 }
+var searchPriceCode = function () {
+	if (code != "") {
+		var data = new Object();
+		data['code'] = code;
+		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
+		$.post('/restful/search/code/', data, function(response) {
+			if (response.status) {
+				var template = "
+				<div class=\"col-md-4\">
+					<dl class=\"dl-horizontal\">
+						<dt>Code Materials</dt>
+						<dd>{{ materials_id }}</dd>
+						<dt>Meter </dt>
+						<dd></dd>
+					</dl>
+				</div>
+				";
+			}else{
+				$().Toastmessage("showWarningToast","Not could recover details materials.");
+			};
+		}, "json");
+	};
+}

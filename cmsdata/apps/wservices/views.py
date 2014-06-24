@@ -240,10 +240,17 @@ class JSONList_DocumentOutputDetails(JSONResponseMixin, View):
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)
 
-class JSONSearch_Price(JSONResponseMixin, View):
+class JSONSearchCode_Price(JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         context = {}
         try:
+            price = DetDocumentIn.objects.filter(materials_id=request.POST.get('code'), flag=True).order_by('-entry__transfer')[:3]
+            context['materials'] = {
+                'matname': price[0].materials.matname,
+                'matmet': price[0].materials.matmet,
+                'matunit': price[0].materials.unit_id,
+                'prices': [{'price': x.price} for x in price]
+            }
             context['status'] = True
         except Exception, e:
             context['status'] = False
