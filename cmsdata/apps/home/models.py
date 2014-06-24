@@ -96,6 +96,15 @@ class DetDocumentOut(models.Model):
     def __unicode__(self):
         return "%s %s %f %f"%(self.output, self.materials, self.quantity, self.price)
 
+class Inventory(models.Model):
+    period = models.CharField(max_length=4)
+    register = models.DateField(auto_now=True)
+    month = models.CharField(max_length=2)
+    materials = models.ForeignKey(Materials, to_field='materiales_id')
+    quantity = models.FloatField()
+    price = models.FloatField()
+    exists = models.BooleanField(default=True)
+
 class userProfile(models.Model):
     user = models.OneToOneField(User)
     empdni = models.CharField(max_length=8,null=False)

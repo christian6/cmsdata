@@ -117,6 +117,8 @@ class ViewDocumentIn(TemplateView):
                     data = json.loads(request.POST.get('data_s'))
                     data['flag'] = True
                     data['supplier_id'] = data['ruc']
+                    phone = data['phone'].split('/')
+                    data['phone'] = phone[0].strip()
                     form = addSupplierForm(data)
                     if form.is_valid():
                         form.save()
@@ -130,6 +132,8 @@ class ViewDocumentIn(TemplateView):
                     context['serie'] = request.POST.get('serie')
                     context['ruc'] = request.POST.get('supplier')
                 else:
+                    print form
+                    print 'form invalid'
                     context['status'] = False
             except Exception, e:
                 print e
@@ -220,3 +224,11 @@ class ViewSupplier(TemplateView):
 
 class ViewSearchMaterialsPrice(TemplateView):
     template_name = "home/consultmaterials.html"
+
+class ViewConstructInventory(TemplateView):
+    template_name = 'home/construct.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewConstructInventory, self).get_context_data(**kwargs)
+        #period = 
+        return context

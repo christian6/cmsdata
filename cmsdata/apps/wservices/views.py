@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import datetime
 import time, urllib2
 from bs4 import BeautifulSoup
 
@@ -244,13 +245,26 @@ class JSONSearchCode_Price(JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         context = {}
         try:
-            price = DetDocumentIn.objects.filter(materials_id=request.POST.get('code'), flag=True).order_by('-entry__transfer')[:3]
+            price = DetDocumentIn.objects.filter(materials_id=request.GET.get('code'), flag=True).order_by('-entry__transfer')[:3]
             context['materials'] = {
+                'materials_id': price[0].materials_id,
                 'matname': price[0].materials.matname,
                 'matmet': price[0].materials.matmet,
                 'matunit': price[0].materials.unit_id,
-                'prices': [{'price': x.price} for x in price]
+                'prices': [{'price': x.price, 'transfer': x.entry.transfer.strftime("%d-%m-%Y")} for x in price]
             }
+            context['status'] = True
+        except Exception, e:
+            print e
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONSEarchDescription_Price(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            mats = DetDocumentIn.objects.values('materials_id','materials__matname','materials__matmet','materials__unit_id').filter(materials__matname__icontains=request.GET.get('desc'), flag=True).order_by('materials__matname')
+            context['mats'] = [{'materials_id':x['materials_id'],'name':x['materials__matname'],'measure':x['materials__matmet'],'unit':x['materials__unit_id']} for x in mats]
             context['status'] = True
         except Exception, e:
             context['status'] = False

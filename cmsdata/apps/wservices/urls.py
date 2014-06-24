@@ -26,4 +26,5 @@ urlpatterns = patterns('',
     url(r'^document/out/finish/$', JSONFinish_DocumentOutput.as_view()),
     # consult
     url(r'^search/price/code/$', JSONSearchCode_Price.as_view()),
+    url(r'^search/price/description/$', JSONSEarchDescription_Price.as_view()),
 )

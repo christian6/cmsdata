@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block scripts %}
+<script src="{{ MEDIA_URL }}js/mustache.js"></script>
 <script src="{{ MEDIA_URL }}js/home/consultmaterials.js"></script>
 {% endblock scripts %}
 {% block content %}
@@ -40,10 +41,19 @@
 			</div>
 		</aside>
 		<article>
-			<div class="row show-details">
-				
+		<div class="panel panel-primary">
+			<div class="panel-body">
+			<table class="table table-condensed table-hover">
+				<tbody></tbody>
+			</table>
+				<div class="row show-details">
+					<div class="col-md-4">
+						
+				</div>	
 			</div>
+		</div>
 		</article>
 	</div>
 </div>
+{% csrf_token %}
 {% endblock content %}
