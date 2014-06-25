@@ -4,7 +4,7 @@ select d.entry_id as doc,h.transfer, d.materials_id, d.quantity,d.price,'ENTRY' 
 union all
 select d.output_id as doc,h.transfer, d.materials_id, d.quantity,d.price,'OUTPUT' as type from home_documentout h inner join home_detdocumentout d on h.output_id LIKE d.output_id
 */
-create or replace function sp_constructinventory()
+create or replace function sp_constructinventory(character varying)
 returns bool as
 $$
 DECLARE
@@ -19,17 +19,15 @@ begin
 salactual := 0;
 priactual := 0;
 counter := 0;
-  if (select count(period) from home_inventory where materials_id like '220018030014003')::INTEGER = 0 then
+  if (select count(period) from home_inventory where materials_id like $1)::INTEGER = 0 then
     -- When material no content history
-    for x in select *, (select COUNT(*) from home_construct where materials_id like '220018030014003') as co from home_construct where materials_id like '220018030014003' group by doc,transfer,materials_id,quantity, price, type order by transfer asc loop
+    for x in select *, (select COUNT(*) from home_construct where materials_id like $1) as co from home_construct where materials_id like $1 group by doc,transfer,materials_id,quantity, price, type order by transfer asc loop
       if months NOT LIKE to_char(x.transfer, 'MM') and months is not null then
-        raise notice 'dentro de moths  % %',months, to_char(x.transfer, 'MM');
+        --raise notice 'dentro de moths  % %',months, to_char(x.transfer, 'MM');
         if counter >= 0 then
           --raise notice 'saldos % %',salactual, priactual;
           insert into home_inventory(period,register,month,materials_id,quantity,price,exists) values(years,now()::date,months,x.materials_id,salactual,priactual,True);
         end if;
-      else
-        raise notice 'son iguales';
       end if;
       -- compare if is entry or output
       --raise notice ' saldo: %',salactual;
@@ -49,8 +47,12 @@ counter := 0;
       -- RAISE NOTICE '%',x.transfer;
     end loop;
     --raise info 'saldo final: %',salactual;
+    else
+      -- delete all data recorded
+      delete from home_inventory where materials_id like $1;
+      -- register balance materials
+      select * from sp_constructinventory($1);
   end if;
-  --for x in select 
 return true;
 exception when others then
 return false;
@@ -65,10 +67,33 @@ select * from home_construct where materials_id like '220018030014003'
 delete from home_inventory
 select * from home_inventory
 select * from home_detdocumentin where materials_id like '220018030014003'
-select * from sp_constructinventory()
-"2013";"2014-06-24";"01";"220018030014003";6;30
-"2013";"2014-06-24";"02";"220018030014003";22;20
-"2013";"2014-06-24";"03";"220018030014003";82;8.9
-"2013";"2014-06-24";"04";"220018030014003";95;9
-"2013";"2014-06-24";"08";"220018030014003";141;13
-"2013";"2014-06-24";"11";"220018030014003";167;11
+select * from sp_constructinventory('220018030014001')
+
+create or replace function sp_constructallmaterials()
+returns character varying as
+$$
+DECLARE
+  x record;
+  status Boolean;
+  counter Integer;
+  discount Integer;
+  result character varying;
+begin
+  counter := 0;
+  discount := 0;
+  for x in select distinct materials_id from home_construct order by materials_id asc loop
+    status := (select * from sp_constructinventory(x.materials_id));
+    --raise notice '%',x.materials_id;
+    if status then
+      counter := counter + 1;
+    else
+      discount := discount +1;
+    end if;
+  end loop;
+  result := counter::character varying||'|'||discount::character varying;
+return result;
+end;
+$$
+language plpgsql;
+
+select sp_constructallmaterials()

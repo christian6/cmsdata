@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import connection, transaction
 
 # Create your models here.
 
@@ -104,6 +105,36 @@ class Inventory(models.Model):
     quantity = models.FloatField()
     price = models.FloatField()
     exists = models.BooleanField(default=True)
+
+    @staticmethod
+    @transaction.commit_on_success
+    def register_materials(materials):
+        try:
+            cn = connection.cursor() # Open connection to DDBB
+            cn.callproc('sp_constructinventory',[materials,]) # Execute Store Procedure
+            result = cn.fetchone() # recover result
+            cn.close() # close connection
+            print result
+            return result[0]
+        except Exception, e:
+            print e
+            transaction.rollback()
+            return False
+
+    @staticmethod
+    @transaction.commit_on_success
+    def register_allinventory():
+        try:
+            cn = connection.cursor() # Open connection to DDBB
+            cn.callproc('sp_constructallmaterials') # Execute Store Procedure
+            result = cn.fetchone() # recover result
+            cn.close() # close connection
+            print result
+            return result[0]
+        except Exception, e:
+            print e
+            transaction.rollback()
+            return False
 
 class userProfile(models.Model):
     user = models.OneToOneField(User)

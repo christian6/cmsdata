@@ -230,5 +230,20 @@ class ViewConstructInventory(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ViewConstructInventory, self).get_context_data(**kwargs)
-        #period = 
         return context
+
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            context = {}
+            try:
+                if request.POST.get('type') == 'one':
+                    obj = Inventory.register_materials('materials')
+                    context['msg'] = obj
+                elif request.POST.get('type') == 'all':
+                    obj = Inventory.register_allinventory()
+                print obj
+                context['msg'] = obj
+                context['status'] = obj
+            except Exception, e:
+                context['status'] = False
+            return HttpResponse(simplejson.dumps(context), mimetype='application/json')
