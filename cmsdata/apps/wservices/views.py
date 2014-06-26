@@ -40,6 +40,17 @@ class JSONDescription_Materials(View):
             context['status'] = False
         return HttpResponse(simplejson.dumps(context), mimetype='application/json')
 
+# class JSONByDescription_Materials(JSONResponseMixin, View):
+#     def get(self, request, *args, **kwargs):
+#         context = {}
+#         try:
+#             name = Materials.objects.filter(matname__icontains=request.GET.get('desc')).distinct('materiales_id').order_by('matname')
+#             contexts['details'] = [{'materials_id': x.materiales_id, 'description': x.matname, 'measure': x.matmet,'unit':x.unit_id} for x in name]
+#             context['status'] = True
+#         except Exception, e:
+#             context['status'] = False
+#         return HttpResponse(simplejson.dumps(context), mimetype='application/json', content_type='application/json')
+
 class JSONMeter_Materials(View):
     def get(self, request, *args, **kwargs):
         context = {}
@@ -266,7 +277,57 @@ class JSONSEarchDescription_Price(JSONResponseMixin, View):
             mats = DetDocumentIn.objects.values('materials_id','materials__matname','materials__matmet','materials__unit_id').filter(materials__matname__icontains=request.GET.get('desc'), flag=True).order_by('materials__matname')
             context['mats'] = [{'materials_id':x['materials_id'],'name':x['materials__matname'],'measure':x['materials__matmet'],'unit':x['materials__unit_id']} for x in mats]
             context['status'] = True
-        except Exception, e:
+        except ObjectDoesNotExist, e:
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONByDescription_Inventory(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            mats = Inventory.objects.filter(materials__matname__icontains=request.GET.get('desc'), exists=True).distinct('materials__materiales_id').order_by('materials__materiales_id')
+            context['details'] = [{'materials_id':x.materials_id,'name':x.materials.matname,'measure':x.materials.matmet,'unit':x.materials.unit_id} for x in mats]
+            context['status'] = True
+        except ObjectDoesNotExist, e:
+            print e
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONPeriodByCode_Inventory(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            period = Inventory.objects.values('period').filter(materials_id__exact=request.GET.get('code')).distinct('period').order_by('period')
+            context['period'] = [{'period':x['period']} for x in period]
+            context['status'] = True
+        except ObjectDoesNotExist:
+            status['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONMonthPeriod_Inventario(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            months = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June','07':'July','08':'August','09':'September','10':'October','11':'November','12':'Decembre'}
+            if request.GET.get('code') is not None:
+                month = Inventory.objects.values('month').filter(materials_id__exact=request.GET.get('code'),period__exact=request.GET.get('period')).distinct('month').order_by('month')
+            else:
+                month = Inventory.objects.values('month').filter(period__exact=request.GET.get('period')).distinct('month').order_by('month')
+            context['months'] = [{'value':x['month'], 'month': months[x['month']]} for x in month]
+            context['status'] = True
+        except ObjectDoesNotExist:
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONRecoverDataByMaterial(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            obj = Inventory.getBymaterialsPeriodMonth(request.GET.get('code'),request.GET.get('period'),request.GET.get('month'))
+            #context['data'] = 
+            for x in obj:
+                print x
+        except ObjectDoesNotExist:
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)
 

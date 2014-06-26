@@ -21,7 +21,7 @@ var materialsBalanace = function (event) {
 					$.post('', data, function(response) {
 						console.log(response);
 						if (response.status) {
-							$().toastmessage("showNoticeToast","Transaction Success.");
+							$().toastmessage("showNoticeToast","Transaction Success sfgf.");
 						}else{
 							$().toastmessage("showWarningToast","Transaction not found!");
 						};
@@ -44,13 +44,16 @@ var allmaterials = function (event) {
 		buttons: [{value:'Yes'}, {value:'No'}],
 		success: function (result) {
 			if (result == 'Yes') {
+				$(".modal").modal("show");
 				var data = new Object();
 				data['type'] = "all";
 				data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
 				$.post('', data, function(response) {
-					console.log(response);
+					//console.log(response);
+					$(".modal").modal("hide");
 					if (response.status) {
-						$().toastmessage("showNoticeToast","Transaction Success.");
+						var msg = response.msg.split("|");
+						$().toastmessage("showNoticeToast", "Success Transaction<br /> Total Success: "+msg[0]+" <br /> Total Fail: "+msg[1]);
 					}else{
 						$().toastmessage("showWarningToast","Transaction not found!");
 					};

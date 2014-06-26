@@ -247,3 +247,10 @@ class ViewConstructInventory(TemplateView):
             except Exception, e:
                 context['status'] = False
             return HttpResponse(simplejson.dumps(context), mimetype='application/json')
+
+class ViewValued_Inventory(TemplateView):
+    template_name = 'home/valued.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewValued_Inventory, self).get_context_data(**kwargs)
+        return context

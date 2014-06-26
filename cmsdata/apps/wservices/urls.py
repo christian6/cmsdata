@@ -27,4 +27,9 @@ urlpatterns = patterns('',
     # consult
     url(r'^search/price/code/$', JSONSearchCode_Price.as_view()),
     url(r'^search/price/description/$', JSONSEarchDescription_Price.as_view()),
+    url(r'^search/inventoy/details/desc/$', JSONByDescription_Inventory.as_view()),
+    url(r'^search/inventoy/period/$', JSONPeriodByCode_Inventory.as_view()),
+    url(r'^search/inventoy/month/$', JSONMonthPeriod_Inventario.as_view()),
+    # get report
+    url(r'report/get/data/bymaterials/$', JSONRecoverDataByMaterial.as_view()),
 )

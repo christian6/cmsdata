@@ -96,7 +96,13 @@ class DetDocumentOut(models.Model):
 
     def __unicode__(self):
         return "%s %s %f %f"%(self.output, self.materials, self.quantity, self.price)
-
+def dictfetchall(cursor): 
+    "Returns all rows from a cursor as a dict" 
+    desc = cursor.description 
+    return [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall() 
+    ]
 class Inventory(models.Model):
     period = models.CharField(max_length=4)
     register = models.DateField(auto_now=True)
@@ -114,10 +120,8 @@ class Inventory(models.Model):
             cn.callproc('sp_constructinventory',[materials,]) # Execute Store Procedure
             result = cn.fetchone() # recover result
             cn.close() # close connection
-            print result
             return result[0]
         except Exception, e:
-            print e
             transaction.rollback()
             return False
 
@@ -129,8 +133,22 @@ class Inventory(models.Model):
             cn.callproc('sp_constructallmaterials') # Execute Store Procedure
             result = cn.fetchone() # recover result
             cn.close() # close connection
-            print result
             return result[0]
+        except Exception, e:
+            transaction.rollback()
+            return False
+
+    @staticmethod
+    @transaction.commit_on_success
+    def getBymaterialsPeriodMonth(materials='', period='', month=''):
+        try:
+            cn = connection.cursor() # Open connection to DDBB
+            #cn.execute("select * from spconsultbymaterialperiodmonth_inventory('%s','%s','%s')"%(materials, period, month))
+            cn.callproc('spconsultbymaterialperiodmonth_inventory',[materials, period, month,])
+            #result = dictfetchall(cn) # recover result
+            result = cn.fetchall()
+            cn.close() # close connection
+            return result
         except Exception, e:
             print e
             transaction.rollback()

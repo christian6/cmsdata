@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}
+	Valued Inventory
+{% endblock title %}
+{% block scripts %}
+<script src="{{ MEDIA_URL }}js/mustache.js"></script>
+<script src="{{ MEDIA_URL }}js/home/valued.js"></script>
+{% endblock scripts %}
+{% block content %}
+<div class="container">
+	<div class="well">
+		<header>
+			<h3>Valued Inventory</h3>
+		</header>
+		<aside>
+			<div class="bs-callout bs-callout-warning">
+				<div class="row">
+					<div class="col-md-3">
+						<div class="form-group">
+							<label class="control-label">Select</label>
+							<select name="type" id="type" class="form-control">
+								<option value="">-- Select an Options --</option>
+								<option value="one">By each material</option>
+								<option value="all">All materials</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label class="control-label">Code</label>
+							<input type="text" class="form-control" name="code" maxlength="15" disabled />
+							<input type="hidden" name="codeh" maxlength="15">
+						</div>
+					</div>
+					<div class="col-md-7">
+						<div class="form-group">
+							<label class="control-label">Name</label>
+							<input type="text" class="form-control" name="desc" disabled />
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label class="control-label">Period</label>
+							<select class="form-control" name="period" id="period" disabled></select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label class="control-label">Month</label>
+							<select class="form-control" name="months" id="months" disabled></select>
+						</div>
+					</div>
+					<div class="col-md-1">
+						<div class="form-group">
+							<label class="control-label">Search</label>
+							<button class="btn btn-warning btn-block text-black" disabled><span class="glyphicon glyphicon-search"></span></button>
+						</div>
+					</div>
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<table class="table table-hover table-condensed table-desc">
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</aside>
+		<article>
+			<div class="panel panel-primary">
+				<div class="table-responsive">
+					<table class="table table-condensed table-hover table-bordered">
+						<thead>
+							<tr>
+								<th class="text-center" colspan="4">DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO, DOCUMENTO INTERNO O SIMILAR</th>
+								<th class="text-center" rowspan="2">TIPO DE OPERACIÓN (TABLA 12)</th>
+								<th class="text-center" colspan="3">ENTRADAS</th>
+								<th class="text-center" colspan="3">SALIDAS</th>
+								<th class="text-center" colspan="3">SALDO FINAL</th>
+							</tr>
+							<tr>
+								<th class="text-center">FECHA</th>
+								<th class="text-center">TIPO (TABLA 10)</th>
+								<th class="text-center">SERIE</th>
+								<th class="text-center">NÚMERO</th>
+								<th class="text-center">CANTIDAD</th>
+								<th class="text-center">COSTO UNITARIO</th>
+								<th class="text-center">COSTO TOTAL</th>
+								<th class="text-center">CANTIDAD</th>
+								<th class="text-center">COSTO UNITARIO</th>
+								<th class="text-center">COSTO TOTAL</th>
+								<th class="text-center">CANTIDAD</th>
+								<th class="text-center">COSTO UNITARIO</th>
+								<th class="text-center">COSTO TOTAL</th>
+							</tr>
+						</thead>
+						<tbody>
+							
+						</tbody>
+						<tfoot>
+							<tr>
+								<th class="text-right" colspan="5">TOTALES</th>
+								<th></th>
+								<th class="success"></th>
+								<th></th>
+								<th></th>
+								<th class="success"></th>
+								<th></th>
+								<th class="success"></th>
+								<th class="success"></th>
+								<th class="success"></th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</article>
+	</div>
+</div>
+{% endblock content %}
