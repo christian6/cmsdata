@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}
+	Report
+{% endblock title %}
+{% block scripts %}
+<script src="{{ MEDIA_URL }}js/home/bedsidereport.js"></script>
+{% endblock scripts %}
+{% block content %}
+<div class="container">
+	<div class="well">
+		<header>
+			<h3>Generate Report Inventory Valued</h3>
+		</header>
+		<article>
+			<div class="bs-callout bs-callout-warning">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="alert alert-warning alert-block">
+							Generate Inventory Valued:<br />
+							<label class="radio-inline"><input type="radio" name="type" value="1"> Period and all materials.</label>
+							<label class="radio-inline"><input type="radio" name="type" value="2"> Period, month and all materials.</label>
+							<label class="radio-inline"><input type="radio" name="type" value="3"> Period, month and select materials.</label>
+							<label class="radio-inline"><input type="radio" name="type" value="4"> Period and select materials.</label>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="period" class="control-lanel">Period</label>
+							<select name="period" id="period" class="form-control">
+								{% for x in period %}
+									<option value="{{ x.period }}">{{ x.period }}</option>
+									{% empty %}
+									<option value="">-- Nothing Period--</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="month" class="control">Month</label>
+							<select name="month" id="month" class="form-control" placeholder="Month"></select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="code" class="control-label">Code</label>
+							<input type="text" maxlength="15" name="code" id="code" class="form-control" placeholder="000000000000000">
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="code" class="control-label">Name</label>
+							<input type="text" maxlength="15" name="name" id="name" class="form-control" placeholder="Description material">
+						</div>
+					</div>
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<div class="panel panel-success">
+								<table>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</div>
+{% endblock content %}

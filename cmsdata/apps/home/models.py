@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db import connection, transaction
@@ -146,7 +148,14 @@ class Inventory(models.Model):
             #cn.execute("select * from spconsultbymaterialperiodmonth_inventory('%s','%s','%s')"%(materials, period, month))
             cn.callproc('spconsultbymaterialperiodmonth_inventory',[materials, period, month,])
             #result = dictfetchall(cn) # recover result
-            result = cn.fetchall()
+            result = []
+            pre = ''
+            post = ''
+            for x in cn.fetchall():
+                # ruc = x[0][-11:]
+                pre = x[0][:3]
+                post = x[0][4:-11]
+                result.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'type':x[5]})
             cn.close() # close connection
             return result
         except Exception, e:

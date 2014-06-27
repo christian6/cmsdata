@@ -5,17 +5,112 @@ $(document).ready(function() {
 	$("input[name=desc]").on("keyup", getdescription);
 	$(document).on("click", ".btn-mat", getMaterial);
 	$("select[name=period]").on("click", getMonths);
+	$(".btn-generate").on("click", getdata);
 });
 
 // functions
 var getdata = function (event) {
-	var data = new Object();
-	data['code'] = $("[name=codeh]").val();
-	data['period'] = $("[name=period]").val();
-	data['month'] = $("[name=months]").val();
-	console.warn(data);
-	$.getJSON('/restful/report/get/data/bymaterials/', data, function(response) {
-			console.log(response);
+	var prms = new Object(), pass = false;
+	prms['code'] = $("[name=codeh]").val();
+	prms['period'] = $("[name=period]").val();
+	prms['month'] = $("[name=months]").val();
+	if (prms.code == "" || prms.period == null) {
+		$().toastmessage("showWarningToast", "Fields empty, exit!");
+		return false;
+	};
+	var data = new Object(), initial = new Object();
+	$.getJSON('/restful/report/get/balance/back/materials/', prms, function(response) {
+		console.log(response);
+		if (response.status) {
+			initial = response;
+			$.getJSON('/restful/report/get/data/bymaterials/', prms, function(response) {
+				console.log(response);
+				if (response.status) {
+					pass = true;
+					if (pass) {
+						console.log('ready');
+						console.table(data);
+						console.info(initial);
+						var star = "\
+												<tr>\
+												<td></td><td></td><td colspan='2'>SALDO INICIAL</td><td>16</td>\
+												<td>{{ starquantity }}</td><td>{{ starprice }}</td><td>{{ starimport }}</td>\
+												<td></td><td></td><td></td><td>{{ endquantity }}</td><td>{{ endprice }}</td><td>{{ endimport }}</td>\
+												</tr>\
+												";
+						var entry = "\
+												<tr>\
+												<td>{{ transfer }}</td><td></td><td>{{ predoc }}</td><td>{{ postdoc }}</td><td></td>\
+												<td>{{ entryquantity }}</td><td>{{ entryprice }}</td><td>{{ entryimport }}</td>\
+												<td></td><td></td><td></td><td>{{ endquantity }}</td><td>{{ endprice }}</td><td>{{ endimport }}</td>\
+												</tr>\
+												";
+						var output = "\
+												<tr>\
+												<td>{{ transfer }}</td><td></td><td>{{ predoc }}</td><td>{{ postdoc }}</td><td></td><td></td><td></td><td></td>\
+												<td>{{ outputquantity }}</td><td>{{ outputprice }}</td><td>{{ outputimport }}</td>\
+												<td>{{ endquantity }}</td><td>{{ endprice }}</td><td>{{ endimport }}</td>\
+												</tr>\
+												";
+						var $tb = $("table.table-report > tbody");
+						$tb.empty();
+						var starquantity = initial.initial[0].quantity,
+								starprice = initial.initial[0].price,
+								endquantity = 0, endprice = 0,
+								allentryquantity = 0, alloutputquantity = 0,
+								allentryprice = 0, alloutputprice = 0;
+						$tb.append(Mustache.render(star, {'starquantity': starquantity, 'starprice': starprice, 'starimport': (starquantity * starprice), 'endquantity': starquantity, 'endprice': starprice, 'endimport': (starquantity * starprice)}));
+						for (var x in response.data) {
+							if (response.data[x].type == "ENTRY") {
+								// entry
+								response.data[x].entryquantity = response.data[x].quantity;
+								response.data[x].entryprice = response.data[x].price;
+								response.data[x].entryimport = (response.data[x].quantity * response.data[x].price);
+								// end data
+								if (parseInt(x) == 0) {
+									response.data[x].endquantity = (starquantity + response.data[x].quantity);
+									response.data[x].endprice = response.data[x].price;
+									endquantity = (starquantity + response.data[x].quantity);
+									response.data[x].endimport = (endquantity * response.data[x].price);
+								}else{
+									response.data[x].endquantity = (endquantity + response.data[x].quantity);
+									response.data[x].endprice = response.data[x].price;
+									endquantity = (endquantity + response.data[x].quantity);
+									response.data[x].endimport = (endquantity * response.data[x].price);
+								};
+								allentryquantity += response.data[x].quantity;
+								allentryprice += response.data[x].price;
+								$tb.append(Mustache.render(entry, response.data[x]));
+							}else if(response.data[x].type == "OUTPUT"){
+								// output
+								response.data[x].outputquantity = response.data[x].quantity;
+								response.data[x].outputprice = response.data[x].price;
+								response.data[x].outputimport = (response.data[x].quantity * response.data[x].price);
+								// end data
+								if (parseInt(x) == 0) {
+									response.data[x].endquantity = (starquantity - response.data[x].quantity);
+									response.data[x].endprice = response.data[x].price;
+									endquantity = (starquantity - response.data[x].quantity);
+									response.data[x].endimport = (endquantity * response.data[x].price);
+								}else{
+									response.data[x].endquantity = (endquantity - response.data[x].quantity);
+									response.data[x].endprice = response.data[x].price;
+									endquantity = (endquantity - response.data[x].quantity);
+									response.data[x].endimport = (endquantity * response.data[x].price);
+								};
+								alloutputquantity += response.data[x].quantity;
+								alloutputprice += response.data[x].price;
+								$tb.append(Mustache.render(output, response.data[x]));
+							};
+						}
+						$(".fteq").html(allentryquantity);
+						$(".ftsq").html(alloutputquantity);
+						$(".ftep").html(allentryprice);
+						$(".ftsp").html(alloutputprice);
+					};
+				};
+			});
+		};
 	});
 }
 var getMonths = function (event) {

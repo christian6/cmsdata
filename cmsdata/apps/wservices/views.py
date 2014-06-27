@@ -274,7 +274,7 @@ class JSONSEarchDescription_Price(JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         context = {}
         try:
-            mats = DetDocumentIn.objects.values('materials_id','materials__matname','materials__matmet','materials__unit_id').filter(materials__matname__icontains=request.GET.get('desc'), flag=True).order_by('materials__matname')
+            mats = DetDocumentIn.objects.values('materials_id','materials__matname','materials__matmet','materials__unit_id').filter(materials__matname__icontains=request.GET.get('desc'), flag=True).distinct('materials__matname').order_by('materials__matname')
             context['mats'] = [{'materials_id':x['materials_id'],'name':x['materials__matname'],'measure':x['materials__matmet'],'unit':x['materials__unit_id']} for x in mats]
             context['status'] = True
         except ObjectDoesNotExist, e:
@@ -324,9 +324,33 @@ class JSONRecoverDataByMaterial(JSONResponseMixin, View):
         context = {}
         try:
             obj = Inventory.getBymaterialsPeriodMonth(request.GET.get('code'),request.GET.get('period'),request.GET.get('month'))
-            #context['data'] = 
-            for x in obj:
-                print x
+            context['data'] = obj
+            context['status'] = True
+        except ObjectDoesNotExist:
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONRecoverBalanceBackMaterial(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        try:
+            period = request.GET.get('period')
+            month = (int(request.GET.get('month')) - 1)
+            if month <= 0:
+                month = 12
+                period = str(int(request.GET.get('period')) - 1)
+            elif month >= 13:
+                month = 1
+            month = "{:0>2d}".format(month)
+            print request.GET['code'], period, month
+            obj = Inventory.objects.values('quantity','price').filter(materials_id__exact=request.GET.get('code'),period__exact=period,month__exact=month)
+            print obj
+            if not obj:
+                context['initial'] = [{'quantity':0, 'price': 0}]
+            else:
+                context['initial'] = [{'quantity':obj[0]['quantity'], 'price': obj[0]['price']}]
+            print context
+            context['status'] = True
         except ObjectDoesNotExist:
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)

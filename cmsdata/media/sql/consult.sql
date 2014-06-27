@@ -1,6 +1,6 @@
 ﻿select * from home_construct
 /* consult view construct a material with period and month */
-create or replace function spconsultbymaterialperiodmonth_inventory(character varying, character varying, character varying)
+create or replace function spconsultbymaterialperiodmonth_inventory(varchar, varchar, varchar)
 returns setof home_construct as
 $$
 select c.doc,c.transfer,c.materials_id,c.quantity,c.price,c.type from home_construct c where c.materials_id like $1 and to_char(c.transfer, 'YYYY') like $2 and to_char(c.transfer, 'MM') like $3 order by c.transfer asc;

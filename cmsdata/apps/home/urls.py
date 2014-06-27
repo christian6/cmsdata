@@ -19,4 +19,7 @@ urlpatterns = patterns('',
     url(r'^consult/materials/$', ViewSearchMaterialsPrice.as_view(), name='view_consult'),
     url(r'^contruct/inventory/$', ViewConstructInventory.as_view(), name='view_construct'),
     url(r'^consult/valued/inventory/$', ViewValued_Inventory.as_view(), name='view_valued'),
+    # Report
+    url(r'^report/bedside/$', ViewBedsideReport.as_view(), name='rpt_bedside'),
+    url(r'^report/inventory/valued/$', ViewRptInventoryValued.as_view(), name='rpt_valued'),
 )

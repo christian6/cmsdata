@@ -248,9 +248,85 @@ class ViewConstructInventory(TemplateView):
                 context['status'] = False
             return HttpResponse(simplejson.dumps(context), mimetype='application/json')
 
+class ViewBedsideReport(TemplateView):
+    template_name = 'home/bedsidereport.html'
+
+    def get(self, request, *args, **kwargs):
+        context = super(ViewBedsideReport, self).get_context_data(**kwargs)        
+        if request.is_ajax():
+            # context = dict()
+            try:
+                months = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June','07':'July','08':'August','09':'September','10':'October','11':'November','12':'Decembre'}
+                month = Inventory.objects.values('month').filter(period__exact=request.GET.get('period')).distinct('month').order_by('month')
+                context['months'] = [{'value':x['month'], 'month': months[x['month']]} for x in month]
+                context['status'] = True
+            except Exception, e:
+                context['status'] = False
+            return HttpResponse(simplejson.dumps(context), mimetype='application/json')
+        context['period'] = [{'period': x['period']} for x in Inventory.objects.values('period').distinct('period').order_by('period')]
+        return render_to_response(self.template_name, context, context_instance=RequestContext(request))
+
 class ViewValued_Inventory(TemplateView):
     template_name = 'home/valued.html'
 
     def get_context_data(self, **kwargs):
         context = super(ViewValued_Inventory, self).get_context_data(**kwargs)
         return context
+
+class ViewRptInventoryValued(TemplateView):
+    def get(self, request, *args, **kwargs):
+        return render_to_response('home/inventoryvalued.html', {}, context_instance=RequestContext(request))
+
+import os
+from django.conf import settings
+import ho.pisa as pisa
+import cStringIO as StringIO
+import cgi
+
+#from django.shortcuts import get_object_or_404, get_list_or_404
+#from django.contrib import messages
+#from django.template import RequestContext, TemplateDoesNotExist
+from django.template.loader import render_to_string
+#from django.contrib.auth.decorators import login_required
+#from django.http import HttpResponse, Http404
+#from django.db.models import Count, Sum
+#from django.views.generic import TemplateView
+
+
+def fetch_resources(uri, rel):
+    path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
+    return path
+
+def generate_pdf(html):
+    # functions for generate the file PDF and return HttpResponse
+    #pisa.showLogging(debug=True)
+    result = StringIO.StringIO()
+    #links = lambda uri, rel: os.path.join(settings.MEDIA_ROOT,uri.replace(settings.MEDIA_URL, ''))
+    #print links
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), dest=result, link_callback=fetch_resources)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), mimetype="application/pdf")
+    return HttpResponse("error al generar el PDF: %s"%cgi.escape(html))
+"""
+   block generate pdf test
+"""
+def view_test_pdf(request):
+    # view of poseable result pdf
+    html = render_to_string('report/test.html',{'pagesize':'A4'},context_instance=RequestContext(request))
+    return generate_pdf(html)
+"""
+    end block
+"""
+### Reports 
+def rpt_orders_details(request,pid,sts):
+    try:
+        if request.method == 'GET':
+            pass
+            # order = get_object_or_404(models.Pedido,pk=pid,status=sts)
+            # lista = get_list_or_404(models.Detpedido.objects.order_by('materiales'),pedido_id__exact=pid)
+            # nipples = models.Niple.objects.filter(pedido_id__exact=pid).order_by('materiales')
+            # ctx = { 'pagesize':'A4','order': order, 'lista': lista, 'nipples': nipples,'tipo': globalVariable.tipo_nipples }
+            # html = render_to_string('report/rptordersstore.html',ctx,context_instance=RequestContext(request))
+            # return generate_pdf(html)
+    except TemplateDoesNotExist, e:
+        raise Http404

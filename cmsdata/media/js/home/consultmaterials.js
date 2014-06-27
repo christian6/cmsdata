@@ -57,7 +57,8 @@ var searchPriceCode = function () {
 					var $content = $(".show-details"), cont = "", price = "";
 					$content.empty();
 					cont = Mustache.render(template, response.materials);
-					for (var x in response.materials.prices){
+					for (var x in response.materials.prices) {
+						response.materials.prices[x].price = response.materials.prices[x].price.toFixed(2);
 						price = price.concat(Mustache.render(tmpprice, response.materials.prices[x]));
 					}
 				$content.append(cont.concat(price).concat("<dl></div></div>"));

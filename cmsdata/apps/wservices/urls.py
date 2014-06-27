@@ -31,5 +31,6 @@ urlpatterns = patterns('',
     url(r'^search/inventoy/period/$', JSONPeriodByCode_Inventory.as_view()),
     url(r'^search/inventoy/month/$', JSONMonthPeriod_Inventario.as_view()),
     # get report
-    url(r'report/get/data/bymaterials/$', JSONRecoverDataByMaterial.as_view()),
+    url(r'^report/get/data/bymaterials/$', JSONRecoverDataByMaterial.as_view()),
+    url(r'^report/get/balance/back/materials/$', JSONRecoverBalanceBackMaterial.as_view()),
 )
