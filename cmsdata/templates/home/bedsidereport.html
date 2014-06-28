@@ -3,6 +3,7 @@
 	Report
 {% endblock title %}
 {% block scripts %}
+<script src="{{ MEDIA_URL }}js/mustache.js"></script>
 <script src="{{ MEDIA_URL }}js/home/bedsidereport.js"></script>
 {% endblock scripts %}
 {% block content %}
@@ -47,18 +48,35 @@
 							<input type="text" maxlength="15" name="code" id="code" class="form-control" placeholder="000000000000000">
 						</div>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-5">
 						<div class="form-group">
 							<label for="code" class="control-label">Name</label>
 							<input type="text" maxlength="15" name="name" id="name" class="form-control" placeholder="Description material">
 						</div>
 					</div>
+					<div class="col-md-1">
+						<div class="form-group">
+							<label class="control-label">Generate</label>
+							<button class="btn btn-block btn-warning btn-generate"><span class="glyphicon glyphicon-search"></span></button>
+						</div>
+					</div>
 					<div class="col-md-12">
 						<div class="table-responsive">
 							<div class="panel panel-success">
-								<table>
+								<table class="table table-condensed table-hover table-mat">
+									<thead>
+										<td colspan="4"></td>
+										<td><button class="btn btn-success btn-xs btn-block btn-table-mat"><span class="glyphicon glyphicon-remove"></span></button></td>
+									</thead>
 									<tbody></tbody>
 								</table>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-12">
+						<div class="alert bg-success alert-block alert-materials">
+							<div class="row">
+								
 							</div>
 						</div>
 					</div>

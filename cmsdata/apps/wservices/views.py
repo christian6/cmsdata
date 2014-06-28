@@ -289,7 +289,17 @@ class JSONByDescription_Inventory(JSONResponseMixin, View):
             context['details'] = [{'materials_id':x.materials_id,'name':x.materials.matname,'measure':x.materials.matmet,'unit':x.materials.unit_id} for x in mats]
             context['status'] = True
         except ObjectDoesNotExist, e:
-            print e
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
+
+class JSONByCode_Inventory(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        try:
+            mats = Inventory.objects.filter(materials_id__exact=request.GET.get('code'), exists=True).distinct('materials__materiales_id').order_by('materials__materiales_id')
+            context['details'] = [{'materials_id':x.materials_id,'name':x.materials.matname,'measure':x.materials.matmet,'unit':x.materials.unit_id} for x in mats]
+            context['status'] = True
+        except ObjectDoesNotExist, e:
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)
 
@@ -297,7 +307,11 @@ class JSONPeriodByCode_Inventory(JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         context = {}
         try:
-            period = Inventory.objects.values('period').filter(materials_id__exact=request.GET.get('code')).distinct('period').order_by('period')
+            period = None
+            if request.GET.get('code') is not None:
+                period = Inventory.objects.values('period').filter(materials_id__exact=request.GET.get('code')).distinct('period').order_by('period')
+            else:
+                period = Inventory.objects.values('period').distinct('period').order_by('period')
             context['period'] = [{'period':x['period']} for x in period]
             context['status'] = True
         except ObjectDoesNotExist:
