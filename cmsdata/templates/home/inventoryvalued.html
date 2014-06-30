@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Report Inventory Valued</title>
+	<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/report/report.css">
 </head>
 <body>
 	<body>
@@ -10,8 +11,63 @@
 			<h4>FORMATO 13.1: "REGISTRO DE INVENTARIO PERMANENTE VALORIZADO - DETALLE DEL INVENTARIO VALORIZADO"</h4>
 		</header>
 		<article>
-			
+			<table>
+				<tr><th width="4cm" class="bedreport">PERIODO </th><th width="1cm">:</th><td></td></tr>
+				<tr><th width="4cm" class="bedreport">RUC </th><th width="1cm">:</th><td></td></tr>
+				<tr><th width="4cm" class="bedreport">RAZON SOCIAL / NOMBRES </th><th width="1cm">:</th><td></td></tr>
+				<tr><th width="4cm" class="bedreport">CODIGO </th><th width="1cm">:</th><td></td></tr>
+				<tr><th width="4cm" class="bedreport">NOMBRE MATERIAL </th><th width="1cm">:</th><td></td></tr>
+				<tr><th width="4cm" class="bedreport">UNIDAD </th><th width="1cm">:</th><td></td></tr>
+			</table>
 		</article>
+		<aside>
+			{{ inventory }}
+		</aside>
+		<section>
+			<table class="table table-condensed table-hover table-bordered table-report">
+				<thead>
+					<tr>
+						<th class="text-center" colspan="4">DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO, DOCUMENTO INTERNO O SIMILAR</th>
+						<th class="text-center" rowspan="2">TIPO DE OPERACIÓN (TABLA 12)</th>
+						<th class="text-center" colspan="3">ENTRADAS</th>
+						<th class="text-center" colspan="3">SALIDAS</th>
+						<th class="text-center" colspan="3">SALDO FINAL</th>
+					</tr>
+					<tr>
+						<th class="text-center">FECHA</th>
+						<th class="text-center">TIPO (TABLA 10)</th>
+						<th class="text-center">SERIE</th>
+						<th class="text-center">NÚMERO</th>
+						<th class="text-center">CANTIDAD</th>
+						<th class="text-center">COSTO UNITARIO</th>
+						<th class="text-center">COSTO TOTAL</th>
+						<th class="text-center">CANTIDAD</th>
+						<th class="text-center">COSTO UNITARIO</th>
+						<th class="text-center">COSTO TOTAL</th>
+						<th class="text-center">CANTIDAD</th>
+						<th class="text-center">COSTO UNITARIO</th>
+						<th class="text-center">COSTO TOTAL</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+				<tfoot>
+					<tr>
+						<th class="text-right" colspan="5">TOTALES</th>
+						<th class="fteq"></th>
+						<th class="success ftep"></th>
+						<th></th>
+						<th class="ftsq"></th>
+						<th class="success ftsp"></th>
+						<th></th>
+						<th class="success"></th>
+						<th class="success"></th>
+						<th class="success"></th>
+					</tr>
+				</tfoot>
+			</table>
+		</section>
 	</body>
 </body>
 </html>

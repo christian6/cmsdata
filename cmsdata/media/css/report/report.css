@@ -1,0 +1,20 @@
+@page {
+	size: a3 landscape;
+	margin: 1cm;
+}
+.bedreport {
+	text-align: left;
+}
+.text-center {
+	text-align: center;
+}
+.text-right {
+	text-align: right;
+}
+.success {
+	background-color: #dff0d8;
+}
+table > thead > tr, table > tfoot > tr {
+	border: 1px solid black;
+	padding: 0.1cm;
+}

@@ -97,3 +97,11 @@ $$
 language plpgsql;
 
 select sp_constructallmaterials()
+--- edit 28/06/2014
+create or replace function sp_rpt_consultdetailsbyperiod(character varying)
+returns setof home_construct as
+$$
+select * from home_construct where to_char(transfer, 'YYYY') like $1 order by materials_id, transfer asc;
+$$
+language sql;
+select * from home_inventory

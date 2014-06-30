@@ -14,6 +14,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.template import RequestContext
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 
 from .forms import *
@@ -283,15 +284,7 @@ import ho.pisa as pisa
 import cStringIO as StringIO
 import cgi
 
-#from django.shortcuts import get_object_or_404, get_list_or_404
-#from django.contrib import messages
-#from django.template import RequestContext, TemplateDoesNotExist
 from django.template.loader import render_to_string
-#from django.contrib.auth.decorators import login_required
-#from django.http import HttpResponse, Http404
-#from django.db.models import Count, Sum
-#from django.views.generic import TemplateView
-
 
 def fetch_resources(uri, rel):
     path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
@@ -299,11 +292,11 @@ def fetch_resources(uri, rel):
 
 def generate_pdf(html):
     # functions for generate the file PDF and return HttpResponse
-    #pisa.showLogging(debug=True)
+    # pisa.showLogging(debug=True)
     result = StringIO.StringIO()
     #links = lambda uri, rel: os.path.join(settings.MEDIA_ROOT,uri.replace(settings.MEDIA_URL, ''))
     #print links
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), dest=result, link_callback=fetch_resources)
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode('UTF-8')), dest=result, link_callback=fetch_resources)
     if not pdf.err:
         return HttpResponse(result.getvalue(), mimetype="application/pdf")
     return HttpResponse("error al generar el PDF: %s"%cgi.escape(html))
@@ -317,16 +310,120 @@ def view_test_pdf(request):
 """
     end block
 """
-### Reports 
-def rpt_orders_details(request,pid,sts):
-    try:
-        if request.method == 'GET':
-            pass
-            # order = get_object_or_404(models.Pedido,pk=pid,status=sts)
-            # lista = get_list_or_404(models.Detpedido.objects.order_by('materiales'),pedido_id__exact=pid)
-            # nipples = models.Niple.objects.filter(pedido_id__exact=pid).order_by('materiales')
-            # ctx = { 'pagesize':'A4','order': order, 'lista': lista, 'nipples': nipples,'tipo': globalVariable.tipo_nipples }
-            # html = render_to_string('report/rptordersstore.html',ctx,context_instance=RequestContext(request))
-            # return generate_pdf(html)
-    except TemplateDoesNotExist, e:
-        raise Http404
+
+class rpt_InventoryValued(TemplateView):
+    template_name = 'home/inventoryvalued.html'
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        try:
+            valued = []
+            if request.GET.get('type') == 'period':
+                """ This section show in the report all the materials of period send as parameter """
+                context['period'] = request.GET.get('period')
+                matdetails = Inventory.getMaterialsByPeriod(request.GET.get('period'))
+                matid = ''
+                details = []
+                counter = 0
+                length = matdetails.__len__()
+                for x in matdetails:
+                    if matid != '' and matid != x[2]:
+                        materials = Materials.objects.get(pk=matid)
+                        valued.append({'materials':materials.materiales_id, 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
+                        details = []
+                    if details.__len__() == 0:
+                        if x[1].strftime('%m') == '01':
+                            init = Inventory.objects.filter(materials_id=x[2], period=str(int(x[1].strftime('%Y')) - 1)).order_by('period','-month')
+                        else:
+                            init = Inventory.objects.filter(materials_id=x[2], period=x[1].strftime('%Y')).order_by('-month')
+                        for x in init:
+                            if :
+                                pass
+                        details.append({'quantity':0, 'price':0, 'import':0, 'endquantity':0, 'endprice':0, 'endimport':0, 'type':'initial'})
+                    pre = ''
+                    post = ''
+                    pre = x[0][:3]
+                    post = x[0][4:-11]
+                    details.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'impor':(x[3] * x[4]),'type':x[5]})
+                    print x[1], x[2]
+                    counter += 1
+                    matid = x[2]
+                    print length, counter
+                    if length == counter:
+                        materials = Materials.objects.get(pk=matid)
+                        valued.append({'materials':x[2], 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
+
+            context['inventory'] = valued
+            print context
+            html = render_to_string(self.template_name, context, context_instance=RequestContext(request))
+            return generate_pdf(html)
+        except ObjectDoesNotExist, e:
+            return Http404
+
+"""
+{
+valued: [
+        { materials: 105405, name: 'abrazadera', measure: '1 x 1"', details: [
+                                                                            {transfer: '06/01/2013',quantity:10,price:2,type:'entry'},
+                                                                            {transfer: '09/01/2013',quantity:10,price:2,type:'entry'},
+                                                                            {transfer: '15/01/2013',quantity:10,price:2,type:'output'},
+                                                                            {transfer: '26/01/2013',quantity:10,price:2,type:'entry'}
+                                                                            ]
+        },
+        { materials: 105406, name: 'abrazadera', measure: '1 x 2"', details: [
+                                                                            {transfer: '02/01/2013',quantity:10,price:2,type:'entry'}
+                                                                            ]
+        },
+    ]
+}
+{'period': u'2013', 'inventory': [
+{'details': [
+    {'transfer': '03-01-2013', 'price': 12.3, 'materials': u'220018030014001', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 60.0},
+    {'transfer': '18-01-2013', 'price': 11.3, 'materials': u'220018030014001', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 10.0},
+    {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014001', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+    {'transfer': '08-11-2013', 'price': 10.5, 'materials': u'220018030014001', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 30.0}
+], 'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'},
+{'details': [
+    {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+    {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0},
+    {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
+], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
+]
+}
+
+{'period': u'2013', 'inventory': [
+    {'details': [
+        {'transfer': '03-01-2013', 'price': 12.3, 'materials': u'220018030014001', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 60.0},
+        {'transfer': '18-01-2013', 'price': 11.3, 'materials': u'220018030014001', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 10.0},
+        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014001', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+        {'transfer': '08-11-2013', 'price': 10.5, 'materials': u'220018030014001', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 30.0}
+        ], 'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'},
+    {'details': [
+        {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+        {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0},
+        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
+        ],'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'},
+    {'details': [
+        {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+        {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0},
+        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
+    ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}]}
+
+{'period': u'2013', 'inventory': [
+    {'details': [
+        {'transfer': '03-01-2013', 'price': 12.3, 'materials': u'220018030014001', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 60.0},
+        {'transfer': '18-01-2013', 'price': 11.3, 'materials': u'220018030014001', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 10.0},
+        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014001', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+        {'transfer': '08-11-2013', 'price': 10.5, 'materials': u'220018030014001', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 30.0}
+        ], 'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'}, 
+    {'details': [
+        {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
+        {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0}, 
+        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
+        ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'},
+    {'details': [
+    {'transfer': '08-11-2013', 'price': 8.6, 'materials': u'220018030014003', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 16.0}
+    ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
+]
+}
+"""

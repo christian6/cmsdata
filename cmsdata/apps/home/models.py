@@ -114,6 +114,9 @@ class Inventory(models.Model):
     price = models.FloatField()
     exists = models.BooleanField(default=True)
 
+    def __unicode__(self):
+        return '%s '%(self.period, self.month, self.materials, self.quantity, self.price)
+
     @staticmethod
     @transaction.commit_on_success
     def register_materials(materials):
@@ -161,6 +164,25 @@ class Inventory(models.Model):
         except Exception, e:
             print e
             transaction.rollback()
+            return False
+
+    @staticmethod
+    @transaction.commit_on_success
+    def getMaterialsByPeriod(period=''):
+        try:
+            cn = connection.cursor()
+            cn.callproc('sp_rpt_consultdetailsbyperiod',[period])
+            result = cn.fetchall() # []
+            # pre = ''
+            # post = ''
+            # for x in cn.fetchall():
+            #     pre = x[0][:3]
+            #     post = x[0][4:-11]
+            #     result.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'type':x[5]})
+            cn.close() # close connection
+            return result
+        except BaseException:
+            transstion.rollback()
             return False
 
 class userProfile(models.Model):

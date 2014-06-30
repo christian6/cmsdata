@@ -114,7 +114,7 @@ var chargeMonth = function () {
 } 
 var showReport = function (event) {
 	event.preventDefault();
-	var url = "",
+	var url = "/report/show/valued/",
 			data = new Object(),
 			mats =  new Array(),
 			pass = false;
