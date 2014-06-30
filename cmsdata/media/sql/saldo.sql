@@ -104,4 +104,21 @@ $$
 select * from home_construct where to_char(transfer, 'YYYY') like $1 order by materials_id, transfer asc;
 $$
 language sql;
-select * from home_inventory
+create or replace function sp_reportsaldo(character  varying, character varying, character varying)
+returns table(period character varying, month character varying, materials_id character varying, quantity double precision, price double precision) as
+$$ 
+select period, month, materials_id, quantity, price from home_inventory
+where period like $1 and month < $2 and materials_id like $3
+order by month desc limit 1 offset 0;
+$$
+language sql;
+
+select * from home_inventory where period like '2013'
+
+------------------------------
+create or replace function sp_rpt_consultdetailsbyperiodandmonth(character varying, character varying)
+returns setof home_construct as
+$$
+select * from home_construct where to_char(transfer, 'YYYY') like $1 and to_char(transfer, 'MM') like $2 order by materials_id, transfer asc;
+$$
+language sql;

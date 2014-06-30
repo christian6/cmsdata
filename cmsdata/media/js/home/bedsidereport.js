@@ -103,7 +103,7 @@ var chargeMonth = function () {
 	var period = $("select[name=period]").val();
 	$.getJSON('/restful/search/inventoy/month/', {'period': period}, function(response) {
 		if (response.status) {
-			var template = "<option value=\"{{ month }}\">{{ month }}</option>";
+			var template = "<option value=\"{{ value }}\">{{ month }}</option>";
 			var $month = $("select[name=month]");
 			$month.empty();
 			for (var x in response.months){
@@ -114,9 +114,9 @@ var chargeMonth = function () {
 } 
 var showReport = function (event) {
 	event.preventDefault();
-	var url = "/report/show/valued/",
+	var url = "/report/show/valued/?",
 			data = new Object(),
-			mats =  new Array(),
+			mats =  "",
 			pass = false;
 	$("input[name=type]").each(function () {
 		if (this.checked) {
@@ -138,8 +138,7 @@ var showReport = function (event) {
 							$().toastmessage("showWarningToast", "Select at least one material.");
 						};
 						$(".alert-materials > .row").find("strong").each(function () {
-							console.log(this.innerHTML);
-							mats.push(this.innerHTML);
+							mats = mats.concat(',').concat("'"+this.innerHTML+"'");
 						});
 						data['materials'] = mats;
 						return false;
@@ -151,8 +150,7 @@ var showReport = function (event) {
 							$().toastmessage("showWarningToast", "Select at least one material.");
 						};
 						$(".alert-materials > .row").find("strong").each(function () {
-							console.log(this.innerHTML);
-							mats.push(this.innerHTML);
+							mats = mats.concat(',').concat("'"+this.innerHTML+"'");
 						});
 						data['materials'] = mats;
 						return false;

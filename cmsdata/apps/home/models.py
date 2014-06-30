@@ -115,7 +115,7 @@ class Inventory(models.Model):
     exists = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return '%s '%(self.period, self.month, self.materials, self.quantity, self.price)
+        return '%s %s %s %f %f'%(self.period, self.month, self.materials, self.quantity, self.price)
 
     @staticmethod
     @transaction.commit_on_success
@@ -172,18 +172,63 @@ class Inventory(models.Model):
         try:
             cn = connection.cursor()
             cn.callproc('sp_rpt_consultdetailsbyperiod',[period])
-            result = cn.fetchall() # []
-            # pre = ''
-            # post = ''
-            # for x in cn.fetchall():
-            #     pre = x[0][:3]
-            #     post = x[0][4:-11]
-            #     result.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'type':x[5]})
+            result = cn.fetchall() # 
             cn.close() # close connection
             return result
         except BaseException:
-            transstion.rollback()
+            transaction.rollback()
             return False
+
+    @staticmethod
+    @transaction.commit_on_success
+    def getMaterialsByPeriodandMonth(period='', month=''):
+        try:
+            cn = connection.cursor()
+            cn.callproc('sp_rpt_consultdetailsbyperiodandmonth', [period, month])
+            result = cn.fetchall()
+            cn.close()
+            return result
+        except Exception, e:
+            raise e
+            transaction.rollback()
+
+    @staticmethod
+    @transaction.commit_on_success
+    def getMaterialsByPerioandMonthandMaterials(period='',month='',materials=''):
+        try:
+            cn = connection.cursor()
+            cn.execute("select * from home_construct where to_char(transfer, 'YYYY') like '%s' and to_char(transfer, 'MM') like '%s' and materials_id IN (%s) order by materials_id, transfer asc"%(period, month,materials))
+            result = cn.fetchall()
+            cn.close()
+            return result
+        except Exception, e:
+            raise e
+            transaction.rollback()
+
+    @staticmethod
+    @transaction.commit_on_success
+    def getMaterialsByPerioandMaterials(period='', materials=''):
+        try:
+            cn = connection.cursor()
+            cn.execute("select * from home_construct where to_char(transfer, 'YYYY') like '%s' and materials_id IN (%s) order by materials_id, transfer asc"%(period,materials))
+            result = cn.fetchall()
+            cn.close()
+            return result
+        except Exception, e:
+            raise e
+            transaction.rollback()
+
+    @staticmethod
+    @transaction.commit_on_success
+    def getSaldoonPeriodandMonth(period='',month='',materials=''):
+        try:
+            cn = connection.cursor()
+            cn.callproc('sp_reportsaldo',[period, month, materials])
+            result = cn.fetchall()
+            cn.close()
+            return result
+        except Exception, e:
+            transaction.rollback()
 
 class userProfile(models.Model):
     user = models.OneToOneField(User)

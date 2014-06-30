@@ -316,114 +316,193 @@ class rpt_InventoryValued(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = dict()
+        optiontwo = False
         try:
+            namemonth = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June','07':'July','08':'August','09':'September','10':'October','11':'November','12':'Decembre'}
             valued = []
+            context['period'] = request.GET.get('period')
+            matdetails = []
             if request.GET.get('type') == 'period':
                 """ This section show in the report all the materials of period send as parameter """
-                context['period'] = request.GET.get('period')
                 matdetails = Inventory.getMaterialsByPeriod(request.GET.get('period'))
-                matid = ''
-                details = []
-                counter = 0
-                length = matdetails.__len__()
-                for x in matdetails:
-                    if matid != '' and matid != x[2]:
-                        materials = Materials.objects.get(pk=matid)
-                        valued.append({'materials':materials.materiales_id, 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
-                        details = []
-                    if details.__len__() == 0:
-                        if x[1].strftime('%m') == '01':
-                            init = Inventory.objects.filter(materials_id=x[2], period=str(int(x[1].strftime('%Y')) - 1)).order_by('period','-month')
-                        else:
-                            init = Inventory.objects.filter(materials_id=x[2], period=x[1].strftime('%Y')).order_by('-month')
-                        for x in init:
-                            if :
-                                pass
-                        details.append({'quantity':0, 'price':0, 'import':0, 'endquantity':0, 'endprice':0, 'endimport':0, 'type':'initial'})
-                    pre = ''
-                    post = ''
-                    pre = x[0][:3]
-                    post = x[0][4:-11]
-                    details.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'impor':(x[3] * x[4]),'type':x[5]})
-                    print x[1], x[2]
-                    counter += 1
-                    matid = x[2]
-                    print length, counter
-                    if length == counter:
-                        materials = Materials.objects.get(pk=matid)
-                        valued.append({'materials':x[2], 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
+            elif request.GET.get('type') == 'periodandmonth':
+                matdetails = Inventory.getMaterialsByPeriodandMonth(request.GET.get('period'),request.GET.get('month'))
+                optiontwo = True
+            elif request.GET.get('type') == 'periodandmonthandmaterials':
+                mat = request.GET.get('materials')[1:]
+                matdetails = Inventory.getMaterialsByPerioandMonthandMaterials(request.GET.get('period'),request.GET.get('month'), mat)
+                optiontwo = True
+            elif request.GET.get('type') == 'periodandmaterials':
+                mat = request.GET.get('materials')[1:]
+                matdetails = Inventory.getMaterialsByPerioandMaterials(request.GET.get('period'), mat)
+
+            matid = ''
+            details = []
+            counter = 0
+            mes = ''
+            months = []
+            importendinit = 0
+            quantityendinit = 0
+            length = matdetails.__len__()
+            entrypriceaccum = 0
+            entryimportaccum = 0
+            entryquantityaccum = 0
+            outputpriceaccum = 0
+            outputquantityaccum = 0
+            outputimportaccum = 0
+            for x in matdetails:
+                print x
+                if mes != '' and mes != x[1].strftime('%m'):
+                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
+                    months = []
+                    entrypriceaccum = 0
+                    entryimportaccum = 0
+                    entryquantityaccum = 0
+                    outputpriceaccum = 0
+                    outputquantityaccum = 0
+                    outputimportaccum = 0
+                if matid != '' and matid != x[2]:
+                    if optiontwo:
+                        details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
+                        months = []
+                        entrypriceaccum = 0
+                        entryimportaccum = 0
+                        entryquantityaccum = 0
+                        outputpriceaccum = 0
+                        outputquantityaccum = 0
+                        outputimportaccum = 0
+                    materials = Materials.objects.get(pk=matid)
+                    valued.append({'materials':materials.materiales_id, 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
+                    details = []
+
+                if months.__len__() == 0:
+                    init = Inventory.getSaldoonPeriodandMonth(materials=x[2], period=x[1].strftime('%Y'), month=x[1].strftime('%m'))
+                    if init != []:
+                        importendinit = (init[0][3] * init[0][4])
+                        quantityendinit = init[0][3]
+                        entryquantityaccum = (entryquantityaccum + quantityendinit)
+                        entrypriceaccum = (entrypriceaccum + init[0][4])
+                        entryimportaccum = (entryimportaccum + importendinit)
+                        months.append({'quantity': quantityendinit, 'price': init[0][4], 'import': importendinit, 'endquantity':init[0][3], 'endprice':init[0][4], 'endimport': importendinit, 'type':'initial'})
+                    else:
+                        importendinit = 0
+                        quantityendinit = 0
+                        months.append({'quantity':0, 'price':0, 'import':0, 'endquantity':0, 'endprice':0, 'endimport':0, 'type':'initial'})
+
+                pre = ''
+                post = ''
+                pre = x[0][:3]
+                post = x[0][4:-11]
+                if x[5] == 'ENTRY':
+                    quantityendinit = (quantityendinit + x[3])
+                    entryquantityaccum = (entryquantityaccum + x[3])
+                    entrypriceaccum = (entrypriceaccum + x[4])
+                    entryimportaccum = (entryimportaccum + (x[3] * x[4]))
+                    months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
+                elif x[5] == 'OUTPUT':
+                    quantityendinit = (quantityendinit - x[3])
+                    outputquantityaccum = (outputquantityaccum + x[3])
+                    outputpriceaccum = (outputpriceaccum + x[4])
+                    outputimportaccum = (outputimportaccum + (x[3] * x[4]))
+                    months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
+                # print x[1], x[2]
+                counter += 1
+                matid = x[2]
+                mes = x[1].strftime('%m')
+                # print length, counter
+                if length == counter:
+                    details.append({'months': months, 'monthname': namemonth[mes]})
+                    materials = Materials.objects.get(pk=matid)
+                    valued.append({'materials':x[2], 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
 
             context['inventory'] = valued
-            print context
+            #print context
             html = render_to_string(self.template_name, context, context_instance=RequestContext(request))
             return generate_pdf(html)
         except ObjectDoesNotExist, e:
             return Http404
 
 """
-{
-valued: [
-        { materials: 105405, name: 'abrazadera', measure: '1 x 1"', details: [
-                                                                            {transfer: '06/01/2013',quantity:10,price:2,type:'entry'},
-                                                                            {transfer: '09/01/2013',quantity:10,price:2,type:'entry'},
-                                                                            {transfer: '15/01/2013',quantity:10,price:2,type:'output'},
-                                                                            {transfer: '26/01/2013',quantity:10,price:2,type:'entry'}
-                                                                            ]
+{'period': u'2013', 'inventory': [
+    {'details': [
+        {'months': [
+            {'endquantity': 0, 'endimport': 0, 'endprice': 0, 'price': 0, 'import': 0, 'type': 'initial', 'quantity': 0},
+            {'endquantity': 10.0, 'endprice': 20.0, 'price': 20.0, 'postdoc': u'00001201', 'predoc': u'001', 'importend': 200.0, 'transfer': '03-01-2013', 'materials': u'220018030014001', 'import': 200.0, 'type': u'ENTRY', 'quantity': 10.0},
+            {'endquantity': 5.0, 'endprice': 22.0, 'price': 22.0, 'postdoc': u'00000266', 'predoc': u'001', 'importend': 110.0, 'transfer': '25-01-2013', 'materials': u'220018030014001', 'import': 110.0, 'type': u'OUTPUT', 'quantity': 5.0}
+            ]
         },
-        { materials: 105406, name: 'abrazadera', measure: '1 x 2"', details: [
-                                                                            {transfer: '02/01/2013',quantity:10,price:2,type:'entry'}
-                                                                            ]
+        {'months': [
+            {'endquantity': 5.0, 'endimport': 110.0, 'endprice': 22.0, 'price': 22.0, 'import': 110.0, 'type': 'initial', 'quantity': 5.0},
+            {'endquantity': 25.0, 'endprice': 15.0, 'price': 15.0, 'postdoc': u'00001202', 'predoc': u'001', 'importend': 375.0, 'transfer': '15-02-2013', 'materials': u'220018030014001', 'import': 300.0, 'type': u'ENTRY', 'quantity': 20.0}
+            ]
+            },
+        {'months': [
+            {'endquantity': 25.0, 'endimport': 375.0, 'endprice': 15.0, 'price': 15.0, 'import': 375.0, 'type': 'initial', 'quantity': 25.0},
+            {'endquantity': 55.0, 'endprice': 10.0, 'price': 10.0, 'postdoc': u'00001203', 'predoc': u'001', 'importend': 550.0, 'transfer': '20-03-2013', 'materials': u'220018030014001', 'import': 300.0, 'type': u'ENTRY', 'quantity': 30.0}
+            ]
         },
+        {'months': [
+            {'endquantity': 55.0, 'endimport': 550.0, 'endprice': 10.0, 'price': 10.0, 'import': 550.0, 'type': 'initial', 'quantity': 55.0},
+            {'endquantity': 63.0, 'endprice': 14.0, 'price': 14.0, 'postdoc': u'00001204', 'predoc': u'001', 'importend': 882.0, 'transfer': '24-04-2013', 'materials': u'220018030014001', 'import': 112.0, 'type': u'ENTRY', 'quantity': 8.0}
+            ]
+        },
+        {'months': [
+            {'endquantity': 63.0, 'endimport': 882.0, 'endprice': 14.0, 'price': 14.0, 'import': 882.0, 'type': 'initial', 'quantity': 63.0},
+            {'endquantity': 155.0, 'endprice': 12.0, 'price': 12.0, 'postdoc': u'00001208', 'predoc': u'001', 'importend': 1860.0, 'transfer': '08-08-2013', 'materials': u'220018030014001', 'import': 1104.0, 'type': u'ENTRY', 'quantity': 92.0}
+            ]
+        },
+        {'months': [
+            {'endquantity': 155.0, 'endimport': 1860.0, 'endprice': 12.0, 'price': 12.0, 'import': 1860.0, 'type': 'initial', 'quantity': 155.0},
+            {'endquantity': 170.0, 'endprice': 12.0, 'price': 12.0, 'postdoc': u'00001211', 'predoc': u'001', 'importend': 2040.0, 'transfer': '14-11-2013', 'materials': u'220018030014001', 'import': 180.0, 'type': u'ENTRY', 'quantity': 15.0}
+            ]
+        },
+        {'months': [
+            {'endquantity': 170.0, 'endimport': 2040.0, 'endprice': 12.0, 'price': 12.0, 'import': 2040.0, 'type': 'initial', 'quantity': 170.0},
+            {'endquantity': 230.0, 'endprice': 12.0, 'price': 12.0, 'postdoc': u'00001212', 'predoc': u'001', 'importend': 2760.0, 'transfer': '19-12-2013', 'materials': u'220018030014001', 'import': 720.0, 'type': u'ENTRY', 'quantity': 60.0}
+            ]
+        }
+    ], 'materials': u'220018030014001', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1"'},
+    {'details': [
+        {'months': [
+            {'endquantity': 0, 'endimport': 0, 'endprice': 0, 'price': 0, 'import': 0, 'type': 'initial', 'quantity': 0},
+            {'endquantity': 6.0, 'endprice': 30.0, 'price': 30.0, 'postdoc': u'00001201', 'predoc': u'001', 'importend': 180.0, 'transfer': '03-01-2013', 'materials': u'220018030014003', 'import': 180.0, 'type': u'ENTRY', 'quantity': 6.0}
+            ]
+        },
+        {'months': [
+            {'endquantity': 6.0, 'endimport': 180.0, 'endprice': 30.0, 'price': 30.0, 'import': 180.0, 'type': 'initial', 'quantity': 6.0},
+            {'endquantity': 22.0, 'endprice': 20.0, 'price': 20.0, 'postdoc': u'00001202', 'predoc': u'001', 'importend': 440.0, 'transfer': '15-02-2013', 'materials': u'220018030014003', 'import': 320.0, 'type': u'ENTRY', 'quantity': 16.0}
+        ]
+        },
+        {'months': [
+            {'endquantity': 22.0, 'endimport': 440.0, 'endprice': 20.0, 'price': 20.0, 'import': 440.0, 'type': 'initial', 'quantity': 22.0},
+            {'endquantity': 82.0, 'endprice': 8.9, 'price': 8.9, 'postdoc': u'00001203', 'predoc': u'001', 'importend': 729.8000000000001, 'transfer': '20-03-2013', 'materials': u'220018030014003', 'import': 534.0, 'type': u'ENTRY', 'quantity': 60.0}
+            ]
+        },
+        {'months': [
+            {'endquantity': 82.0, 'endimport': 729.8000000000001, 'endprice': 8.9, 'price': 8.9, 'import': 729.8000000000001, 'type': 'initial', 'quantity': 82.0},
+            {'endquantity': 95.0, 'endprice': 9.0, 'price': 9.0, 'postdoc': u'00001204', 'predoc': u'001', 'importend': 855.0, 'transfer': '24-04-2013', 'materials': u'220018030014003', 'import': 117.0, 'type': u'ENTRY', 'quantity': 13.0}
+        ]
+        },
+        {'months': [
+            {'endquantity': 95.0, 'endimport': 855.0, 'endprice': 9.0, 'price': 9.0, 'import': 855.0, 'type': 'initial', 'quantity': 95.0},
+            {'endquantity': 141.0, 'endprice': 13.0, 'price': 13.0, 'postdoc': u'00001208', 'predoc': u'001', 'importend': 1833.0, 'transfer': '08-08-2013', 'materials': u'220018030014003', 'import': 598.0, 'type': u'ENTRY', 'quantity': 46.0}
+            ]
+        }
+        ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
     ]
 }
-{'period': u'2013', 'inventory': [
-{'details': [
-    {'transfer': '03-01-2013', 'price': 12.3, 'materials': u'220018030014001', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 60.0},
-    {'transfer': '18-01-2013', 'price': 11.3, 'materials': u'220018030014001', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 10.0},
-    {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014001', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-    {'transfer': '08-11-2013', 'price': 10.5, 'materials': u'220018030014001', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 30.0}
-], 'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'},
-{'details': [
-    {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-    {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0},
-    {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
-], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
-]
-}
+
 
 {'period': u'2013', 'inventory': [
+    {'details': [], 'materials': u'220018030014001', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1"'},
     {'details': [
-        {'transfer': '03-01-2013', 'price': 12.3, 'materials': u'220018030014001', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 60.0},
-        {'transfer': '18-01-2013', 'price': 11.3, 'materials': u'220018030014001', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 10.0},
-        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014001', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-        {'transfer': '08-11-2013', 'price': 10.5, 'materials': u'220018030014001', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 30.0}
-        ], 'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'},
-    {'details': [
-        {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-        {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0},
-        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
-        ],'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'},
-    {'details': [
-        {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-        {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0},
-        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
-    ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}]}
-
-{'period': u'2013', 'inventory': [
-    {'details': [
-        {'transfer': '03-01-2013', 'price': 12.3, 'materials': u'220018030014001', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 60.0},
-        {'transfer': '18-01-2013', 'price': 11.3, 'materials': u'220018030014001', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 10.0},
-        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014001', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-        {'transfer': '08-11-2013', 'price': 10.5, 'materials': u'220018030014001', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 30.0}
-        ], 'materials': u'220018030014002', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/4"'}, 
-    {'details': [
-        {'transfer': '03-01-2013', 'price': 10.2, 'materials': u'220018030014002', 'postdoc': u'00006565', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 12.0},
-        {'transfer': '18-01-2013', 'price': 9.6, 'materials': u'220018030014002', 'postdoc': u'00001202', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 15.0}, 
-        {'transfer': '16-09-2013', 'price': 8.9, 'materials': u'220018030014002', 'postdoc': u'00001203', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 22.0}
-        ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'},
-    {'details': [
-    {'transfer': '08-11-2013', 'price': 8.6, 'materials': u'220018030014003', 'postdoc': u'00001211', 'type': u'ENTRY', 'predoc': u'001', 'quantity': 16.0}
-    ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
-]
+        {'months': [
+          {'endquantity': 0, 'endimport': 0, 'endprice': 0, 'price': 0, 'import': 0, 'type': 'initial', 'quantity': 0},
+          {'endquantity': 10.0, 'endprice': 20.0, 'price': 20.0, 'postdoc': u'00001201', 'predoc': u'001', 'importend': 200.0, 'transfer': '03-01-2013', 'materials': u'220018030014001', 'import': 200.0, 'type': u'ENTRY', 'quantity': 10.0},
+          {'endquantity': 5.0, 'endprice': 22.0, 'price': 22.0, 'postdoc': u'00000266', 'predoc': u'001', 'importend': 110.0, 'transfer': '25-01-2013', 'materials': u'220018030014001', 'import': 110.0, 'type': u'OUTPUT', 'quantity': 5.0},
+          {'endquantity': 11.0, 'endprice': 30.0, 'price': 30.0, 'postdoc': u'00001201', 'predoc': u'001', 'importend': 330.0, 'transfer': '03-01-2013', 'materials': u'220018030014003', 'import': 180.0, 'type': u'ENTRY', 'quantity': 6.0}], 'monthname': 'January'}
+        ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
+    ]
 }
+
 """
