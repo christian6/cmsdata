@@ -33,6 +33,7 @@ var changeRadio = function (event) {
 			}else if(item.value == "3"){
 				if (this.name == "period" || this.name == "month" || this.name == "code" || this.name == "name") {
 					this.disabled = false;
+					chargeMonth();
 				};
 				$(".alert-materials").show("slide", 600);
 			}else if(item.value == "4"){
@@ -175,6 +176,6 @@ var showReport = function (event) {
 	console.log(pass);
 	if (pass) {
 		console.log(data);
-		window.open(url.concat($.param(data, true)),"Report", target="_blank");
+		window.open(url.concat($.param(data, true)),"Report");
 	};
 }
