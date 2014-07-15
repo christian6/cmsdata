@@ -176,6 +176,6 @@ var showReport = function (event) {
 	console.log(pass);
 	if (pass) {
 		console.log(data);
-		window.open(url.concat($.param(data, true)),"Report", target="_blank");
+		window.open(url.concat($.param(data, true)),"Report");
 	};
 }

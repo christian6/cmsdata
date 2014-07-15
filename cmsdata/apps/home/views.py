@@ -371,7 +371,6 @@ class rpt_InventoryValued(TemplateView):
             outputquantityaccum = 0
             outputimportaccum = 0
             for x in matdetails:
-                print x
                 if mes != '' and mes != x[1].strftime('%m'):
                     details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
                     months = []
@@ -396,7 +395,12 @@ class rpt_InventoryValued(TemplateView):
                     details = []
 
                 if months.__len__() == 0:
-                    init = Inventory.getSaldoonPeriodandMonth(materials=x[2], period=x[1].strftime('%Y'), month=x[1].strftime('%m'))
+                    year = x[1].strftime('%Y')
+                    mon = x[1].strftime('%m')
+                    if x[1].strftime('%m') == '01':
+                        year = str(int(x[1].strftime('%Y')) - 1)
+                        mon = '12'
+                    init = Inventory.getSaldoonPeriodandMonth(materials=x[2], period=year, month=mon)
                     if init != []:
                         importendinit = (init[0][3] * init[0][4])
                         quantityendinit = init[0][3]
@@ -431,7 +435,7 @@ class rpt_InventoryValued(TemplateView):
                 mes = x[1].strftime('%m')
                 # print length, counter
                 if length == counter:
-                    details.append({'months': months, 'monthname': namemonth[mes]})
+                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
                     materials = Materials.objects.get(pk=matid)
                     valued.append({'materials':x[2], 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
 
