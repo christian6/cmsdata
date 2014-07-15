@@ -34,4 +34,5 @@ urlpatterns = patterns('',
     # get report
     url(r'^report/get/data/bymaterials/$', JSONRecoverDataByMaterial.as_view()),
     url(r'^report/get/balance/back/materials/$', JSONRecoverBalanceBackMaterial.as_view()),
+    url(r'^document/entry/annular/$', DocumentAnnular.as_view()),
 )

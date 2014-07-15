@@ -19,18 +19,27 @@
 			</header>
 			<section class="btn-bedside">
 				<div class="btn-group">
-					<button class="btn btn-warning text-black btn-new"><span class="glyphicon glyphicon-file"></span> <span class="text">New Document</span></button>
-					<button class="btn btn-warning text-black ctrl-disabled btn-clean" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-trash"></span> Clean Fields</button>
-					<button class="btn btn-warning text-black ctrl-disabled btn-save" data-loading-text="Process!" data-complete-text="Complete!" disabled><span class="glyphicon glyphicon-floppy-disk"></span> Save Document</button>
+					<button class="btn btn-warning text-black btn-new">
+						<span class="glyphicon glyphicon-file"></span>
+						<span class="text"> New Document</span>
+					</button>
+					<button class="btn btn-warning text-black ctrl-disabled btn-clean" data-loading-text="Process!" data-complete-text="Complete!" disabled>
+						<span class="glyphicon glyphicon-trash">
+						</span> Clean Fields
+					</button>
+					<button class="btn btn-warning text-black ctrl-disabled btn-save" data-loading-text="Process!" data-complete-text="Complete!" disabled>
+						<span class="glyphicon glyphicon-floppy-disk">
+						</span> Save Document
+					</button>
 				</div>
 			</section>
 			<div class="row">
 				<div class="col-md-12">
 					<div class="panel panel-warning bedside">
-					<div class="panel-heading">
-						<strong>Bedside Document</strong><br>
-						<small>Fields Required *</small>
-					</div>
+						<div class="panel-heading">
+							<strong>Bedside Document</strong><br>
+							<small>Fields Required *</small>
+						</div>
 						<div class="panel-body panel-bedside">
 							<div class="row">
 								<div class="col-md-2">
@@ -80,6 +89,28 @@
 										<input type="text" class="form-control control ctrl-disabled" name="motive" placeholder="Venta" title="Ingress Motive, Not required" disabled>
 									</div>
 								</div>
+								<div class="col-md-4">
+									<div class="form-group has-warning">
+										<label class="control-label">Document *</label>
+										<select name="document" id="document" class="form-control">
+											<option value="">-- Selected Document--</option>
+											{% for x in document %}
+												<option value="{{ x.document_id }}">{{ x.description }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group has-warning">
+										<label class="control-label">Transaction *</label>
+										<select name="operation" id="operation" class="form-control">
+											<option value="">-- Selected Transaction--</option>
+											{% for x in operation %}
+												<option value="{{ x.operation_id }}">{{ x.description }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -119,25 +150,23 @@
 													</table>
 												</div>
 											</div>
-											<div class="col-md-6">
-												<div class="col-md-4">
-													<div class="form-group">
-														<label class="control-label">Quantity</label>
-														<input type="number" class="form-control" min="0" name="quantity">
-													</div>
+											<div class="col-md-2">
+												<div class="form-group">
+													<label class="control-label">Quantity</label>
+													<input type="number" class="form-control" min="0" name="quantity">
 												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label class="control-label">Price</label>
-														<input type="number" class="form-control" min="0" name="price">
-													</div>
+											</div>
+											<div class="col-md-2">
+												<div class="form-group">
+													<label class="control-label">Price</label>
+													<input type="number" class="form-control" min="0" name="price">
 												</div>
-												<div class="col-md-2">
-													<div class="form-group">
-														<label class="control-label">Aggregate</label>
-														<button class="btn btn-warning btn-block text-black btn-add-in"><span class="glyphicon glyphicon-plus"></span></button>
-													</div>
-												<div>
+											</div>
+											<div class="col-md-1">
+												<div class="form-group">
+													<label class="control-label">Aggregate</label>
+													<button class="btn btn-warning btn-block text-black btn-add-in"><span class="glyphicon glyphicon-plus"></span></button>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -146,7 +175,12 @@
 									<div class="table-responsive">
 										<table class="table table-hover table-condensed table-detailsIn">
 											<caption>
-												<button class="btn btn-primary btn-sm pull-right btn-finish-document"><span class="glyphicon glyphicon-floppy-saved"></span> Finish Document</button>
+												<button class="btn btn-sm pull-left btn-danger btn-annular">
+													<span class="glyphicon glyphicon-trash"></span> Annular Document
+												</button>
+												<button class="btn btn-primary btn-sm pull-right btn-finish-document">
+													<span class="glyphicon glyphicon-floppy-saved"></span> Finish Document
+												</button>
 											</caption>
 											<thead>
 												<tr class="brand-primary text-white">
@@ -155,13 +189,11 @@
 													<th>Unit</th>
 													<th>Code</th>
 													<th>Description</th>
-													<th></th>
-													<th></th>
+													<th>Editar</th>
+													<th>Eliminar</th>
 												</tr>
 											</thead>
-											<tbody>
-												
-											</tbody>
+											<tbody></tbody>
 										</table>
 									</div>
 								</div>
@@ -216,7 +248,7 @@
 					<label class="control-label">Code</label>
 					<input type="hidden" name="id_del">
 					<input type="text" maxlength="15" class="form-control" name="materials_del" readonly>
-				</div>	
+				</div>
 				<div class="form-group">
 					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
 					<button class="btn btn-danger text-black pull-right del-materials"><span class="glyphicon glyphicon-trash"></span> Del Materials</button>

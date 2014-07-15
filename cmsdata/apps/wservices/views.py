@@ -369,6 +369,40 @@ class JSONRecoverBalanceBackMaterial(JSONResponseMixin, View):
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)
 
+class DocumentAnnular(JSONResponseMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            context = dict()
+            if request.POST.get('type') == 'entryannular':
+                try:
+                    # Delete details document entry
+                    obj = DetDocumentIn.objects.filter(entry_id=request.POST.get('entry'))
+                    obj.delete()
+                    print request.POST.get('entry')
+                    # Delete bedside document entry
+                    obj = DocumentIn.objects.get(pk=request.POST.get('entry'))
+                    obj.delete()
+                    context['status'] = True
+                except ObjectDoesNotExist, e:
+                   context['raise'] = e
+                   context['status'] = False
+                return self.render_to_json_response(context, **kwargs)
+            if request.POST.get('type') == 'outputannular':
+                try:
+                    # Delete details document output
+                    obj = DetDocumentOut.objects.filter(output_id__exact=request.POST.get('output'))
+                    obj.delete()
+                    # Delete bedside document entry
+                    obj = DocumentOut.objects.get(pk__exact=request.POST.get('output'))
+                    obj.delete()
+                    context['status'] = True
+                except ObjectDoesNotExist, e:
+                    context['raise'] = e
+                    context['status'] = False
+                return self.render_to_json_response(context, **kwargs)
+
+
 """
     search in cross domain
 """

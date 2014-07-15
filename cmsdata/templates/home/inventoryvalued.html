@@ -56,17 +56,17 @@
 						</thead>
 						<tbody>
 							{% for j in c.months %}
-								{% if j.type == 'initial' %} 
+								{% if j.type == 'initial' %}
 									<tr class="tbody">
-										<td class="text-center"></td><td></td><td colspan="2" class="text-center"><strong>SALDO INICIAL</strong></td><td></td><td class="text-center">{{ j.quantity }}</td><td class="text-center">{{ j.price }}</td><td class="text-right">{{ j.import|floatformat:3 }}</td><td></td><td></td><td></td><td class="text-center">{{ j.endquantity }}</td><td class="text-center">{{ j.endprice }}</td><td class="text-right">{{ j.endimport|floatformat:3 }}</td>
+										<td class="text-center"></td><td></td><td colspan="2" class="text-center"><strong>SALDO INICIAL</strong></td><td></td><td class="text-center">{{ j.quantity }}</td><td class="text-center">{{ j.price }}</td><td class="text-right">{{ j.import|floatformat:2 }}</td><td></td><td></td><td></td><td class="text-center">{{ j.endquantity }}</td><td class="text-center">{{ j.endprice }}</td><td class="text-right">{{ j.endimport|floatformat:2 }}</td>
 									</tr>
 								{% elif j.type == 'ENTRY' %}
 									<tr class="tbody">
-										<td class="text-center">{{ j.transfer }}</td><td></td><td class="text-center">{{ j.predoc }}</td><td class="text-center">{{ j.postdoc }}</td><td></td><td class="text-center">{{ j.quantity }}</td><td class="text-center">{{ j.price }}</td><td class="text-right">{{ j.import|floatformat:3 }}</td><td></td><td></td><td></td><td class="text-center">{{ j.endquantity }}</td><td class="text-center">{{ j.endprice }}</td><td class="text-right">{{ j.importend|floatformat:3 }}</td>
+										<td class="text-center">{{ j.transfer }}</td><td></td><td class="text-center">{{ j.predoc }}</td><td class="text-center">{{ j.postdoc }}</td><td></td><td class="text-center">{{ j.quantity }}</td><td class="text-center">{{ j.price }}</td><td class="text-right">{{ j.import|floatformat:2 }}</td><td></td><td></td><td></td><td class="text-center">{{ j.endquantity }}</td><td class="text-center">{{ j.endprice }}</td><td class="text-right">{{ j.importend|floatformat:2 }}</td>
 									</tr>
 								{% elif j.type == 'OUTPUT' %}
 									<tr class="tbody">
-										<td class="text-center">{{ j.transfer }}</td><td></td><td class="text-center">{{ j.predoc }}</td><td class="text-center">{{ j.postdoc }}</td><td></td><td></td><td></td><td></td><td class="text-center">{{ j.quantity }}</td><td class="text-center">{{ j.price }}</td><td class="text-right">{{ j.import|floatformat:3 }}</td><td class="text-center">{{ j.endquantity }}</td><td class="text-center">{{ j.endprice }}</td><td class="text-right">{{ j.importend|floatformat:3 }}</td>
+										<td class="text-center">{{ j.transfer }}</td><td></td><td class="text-center">{{ j.predoc }}</td><td class="text-center">{{ j.postdoc }}</td><td></td><td></td><td></td><td></td><td class="text-center">{{ j.quantity }}</td><td class="text-center">{{ j.price }}</td><td class="text-right">{{ j.import|floatformat:2 }}</td><td class="text-center">{{ j.endquantity }}</td><td class="text-center">{{ j.endprice }}</td><td class="text-right">{{ j.importend|floatformat:2 }}</td>
 									</tr>
 								{% endif %}
 								{% empty %}
@@ -82,10 +82,10 @@
 								<th class="text-right" colspan="5">TOTALES</th>
 								<th class="fteq">{{ c.entryquantityaccum }}</th>
 								<th class="success ftep">{{ c.entrypriceaccum }}</th>
-								<th class="text-right">{{ c.entryimportaccum|floatformat:3 }}</th>
+								<th class="text-right">{{ c.entryimportaccum|floatformat:2 }}</th>
 								<th class="ftsq">{{ c.outputquantityaccum }}</th>
 								<th class="success ftsp"> {{ c.outputpriceaccum }}</th>
-								<th class="text-right">{{ c.outputimportaccum|floatformat:3 }}</th>
+								<th class="text-right">{{ c.outputimportaccum|floatformat:2 }}</th>
 								<th class="success"></th>
 								<th class="success"></th>
 								<th class="success"></th>

@@ -32,6 +32,7 @@ $(document).ready(function() {
 	$(".edit-materials").on("click", editMaterials);
 	$(".del-materials").on("click", delMaterials);
 	$(".btn-finish-document").on("click", finishDocument);
+	$(".btn-annular").on("click", annularDocument);
 });
 
 var dataProvider = new Object();
@@ -214,7 +215,7 @@ var showDetails = function () {
 			$details = $("input[name=details]"),
 			$serie = $("input[name=det-serie]");
 	if (!Boolean(parseInt($newd.val())) && Boolean(parseInt($details.val())) && $serie.val() != "") {
-		$(".btn-bedside, .bedside").hide("slide","fast");	
+		$(".btn-bedside, .bedside").hide("slide","fast");
 		$(".show-details").show('blind',600);
 		listDocumentInDetails();
 	};
@@ -223,7 +224,7 @@ var saveBedside = function (event) {
 	event.preventDefault();
 	var data = new Object(),
 			pass = false;
-	$(".panel-bedside").find('input').each(function () {
+	$(".panel-bedside").find('input, select').each(function () {
 		if (this.name == "motive" || this.name == "reference") {
 			data[this.name] = this.value;
 			return true;
@@ -260,7 +261,7 @@ var cleanBedside = function (event) {
 		if (this.name == "destination") {
 			this.value = "JR. SAN MARTIN MZA. E  LOTE. 6 LOS HUERTOS DE HUACHIPA (ALT. KM 7 DE LA AUTOPISTA RAMIRO PRIALE) LIMA LIMA LURIGANCHO";
 		}else{
-			this.value = "";	
+			this.value = "";
 		};
 	});
 }
@@ -289,7 +290,6 @@ var connectCross = function () {
 		$.getJSON('/restful/search/sunat/ruc/', {ruc: $("[name=supplier]").val()}, function(response) {
 			console.log(response);
 				if (response.status) {
-					console.info(response);
 					dataProvider = response;
 					$("[name=reason]").val(response.reason);
 				}else{
@@ -297,4 +297,32 @@ var connectCross = function () {
 				};
 		});
 	};
+}
+var annularDocument = function (event) {
+	event.preventDefault();
+	$().toastmessage("showToast", {
+		text: 'Want Annular the document?',
+		type: 'confirm',
+		sticky: true,
+		buttons: [{value:'Yes'}, {value:'No'}],
+		success: function (result) {
+			if (result == "Yes") {
+				var data = {
+					"type": 'entryannular',
+					"entry": $("input[name=det-serie]").val() + $("input[name=ruc]").val(),
+					"csrfmiddlewaretoken": $("input[name=csrfmiddlewaretoken]").val()
+				}
+				$.post("/restful/document/entry/annular/", data, function (response) {
+					if (response.status) {
+						$().toastmessage("showNoticeToast", "Success document delete.");
+						setTimeout(function() {
+							location.href = "/add/document/In/";
+						}, 2600);
+					}else{
+						$().toastmessage("showWarningToast", "Failure in the server." + response.raise);
+					};
+				});
+			};
+		}
+	});
 }

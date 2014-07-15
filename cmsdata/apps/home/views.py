@@ -21,7 +21,7 @@ from .forms import *
 from .models import *
 
 ### Class Views Generic Base
-  
+
 class ViewLogin(TemplateView):
     template_name = "home/login.html"
 
@@ -105,6 +105,8 @@ class ViewDocumentIn(TemplateView):
         context['new'] = '1' if request.GET.get('new') is None else '0'
         context['details'] = '1' if request.GET.get('details') is not None else '0'
         context['ruc'] = '' if request.GET.get('ruc') is None else request.GET.get('ruc')
+        context['document'] = Document.objects.all().order_by('description')
+        context['operation'] = Operation.objects.all().order_by('description')
         return render_to_response(self.template_name, context, context_instance=RequestContext(request))
 
     def post(self, request, *args, **kwargs):
@@ -155,6 +157,8 @@ class ViewDocumentOut(TemplateView):
         context['new'] = '1' if request.GET.get('new') is None else '0'
         context['details'] = '1' if request.GET.get('details') is not None else '0'
         context['ruc'] = '' if request.GET.get('ruc') is None else request.GET.get('ruc')
+        context['document'] = Document.objects.all().order_by('description')
+        context['operation'] = Operation.objects.all().order_by('description')
         return render_to_response(self.template_name, context, context_instance=RequestContext(request))
 
     def post(self, request, *args, **kwargs):
@@ -173,8 +177,8 @@ class ViewDocumentOut(TemplateView):
                     if form.is_valid():
                         form.save()
                 form = addDocumentOutForm(request.POST)
-                print form
-                print form.is_valid()
+                # print form
+                # print form.is_valid()
                 if form.is_valid():
                     add = form.save(commit=False)
                     add.status = 'PE'
@@ -253,7 +257,7 @@ class ViewBedsideReport(TemplateView):
     template_name = 'home/bedsidereport.html'
 
     def get(self, request, *args, **kwargs):
-        context = super(ViewBedsideReport, self).get_context_data(**kwargs)        
+        context = super(ViewBedsideReport, self).get_context_data(**kwargs)
         if request.is_ajax():
             # context = dict()
             try:
@@ -311,6 +315,22 @@ def view_test_pdf(request):
     end block
 """
 
+# Report document entry
+class rpt_DocumentEntry(TemplateView):
+    template_name = "home/rptentry.html"
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        try:
+
+            html = render_to_string(self.template_name, context,context_instance=RequestContext(request))
+            return generate_pdf(html)
+        except ObjectDoesNotExist, e:
+            return Http404(e)
+
+# Report document outout
+
+
 class rpt_InventoryValued(TemplateView):
     template_name = 'home/inventoryvalued.html'
 
@@ -318,7 +338,7 @@ class rpt_InventoryValued(TemplateView):
         context = dict()
         optiontwo = False
         try:
-            namemonth = {'01':'January','02':'February','03':'March','04':'April','05':'May','06':'June','07':'July','08':'August','09':'September','10':'October','11':'November','12':'Decembre'}
+            namemonth = {'01':'Enero','02':'Febrero','03':'Marzo','04':'Abril','05':'Mayo','06':'Junio','07':'Julio','08':'Agosto','09':'Setiembre','10':'Octubre','11':'Noviembre','12':'Deciembre'}
             valued = []
             context['period'] = request.GET.get('period')
             matdetails = []

@@ -4,7 +4,20 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db import connection, transaction
 
-# Create your models here.
+
+class Document(models.Model):
+    document_id = models.CharField(primary_key=True, max_length=2)
+    description = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return "%s - %s"%(self.document_id, self.description)
+
+class Operation(models.Model):
+    operation_id = models.CharField(primary_key=True, max_length=2)
+    description = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return "%s - %s"%(self.operation_id, self.description)
 
 class Supplier(models.Model):
     supplier_id = models.CharField(primary_key=True, max_length=11)
@@ -43,13 +56,15 @@ class Customer(models.Model):
 
     def __unicode__(self):
         return "%s %s"%(self.customers_id, self.reason)
-    
+
 
 class DocumentIn(models.Model):
     entry_id = models.CharField(primary_key=True, max_length=23)
     serie = models.CharField(max_length=12)
     supplier = models.ForeignKey(Supplier)
     destination = models.CharField(max_length=200)
+    document = models.ForeignKey(Document, to_field='document_id', default='01', null=True)
+    operation = models.ForeignKey(Operation, to_field='operation_id', default='01', null=True)
     register = models.DateTimeField(auto_now=True)
     transfer = models.DateField(null=True)
     reference = models.CharField(max_length=160, null=True, blank=True)
@@ -75,6 +90,8 @@ class DocumentOut(models.Model):
     serie = models.CharField(max_length=12)
     customers = models.ForeignKey(Customer, to_field='customers_id')
     reason = models.CharField(max_length=200)
+    document = models.ForeignKey(Document, to_field='document_id', default='01', null=True)
+    operation = models.ForeignKey(Operation, to_field='operation_id', default='01', null=True)
     startpoint = models.CharField(max_length=200)
     endpoint = models.CharField(max_length=200)
     register = models.DateTimeField(auto_now=True)
@@ -98,12 +115,12 @@ class DetDocumentOut(models.Model):
 
     def __unicode__(self):
         return "%s %s %f %f"%(self.output, self.materials, self.quantity, self.price)
-def dictfetchall(cursor): 
-    "Returns all rows from a cursor as a dict" 
-    desc = cursor.description 
+def dictfetchall(cursor):
+    "Returns all rows from a cursor as a dict"
+    desc = cursor.description
     return [
             dict(zip([col[0] for col in desc], row))
-            for row in cursor.fetchall() 
+            for row in cursor.fetchall()
     ]
 class Inventory(models.Model):
     period = models.CharField(max_length=4)
@@ -172,7 +189,7 @@ class Inventory(models.Model):
         try:
             cn = connection.cursor()
             cn.callproc('sp_rpt_consultdetailsbyperiod',[period])
-            result = cn.fetchall() # 
+            result = cn.fetchall() #
             cn.close() # close connection
             return result
         except BaseException:

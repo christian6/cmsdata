@@ -31,6 +31,7 @@ $(document).ready(function() {
 	$(".edit-materials").on("click", editMaterials);
 	$(".del-materials").on("click", delMaterials);
 	$(".btn-finish-document").on("click", finishDocument);
+	$(".btn-annular").on("click", annularDocument);
 	showDetails();
 });
 // varibles
@@ -215,7 +216,7 @@ var showDetails = function () {
 			$details = $("input[name=details]"),
 			$serie = $("input[name=det-serie]");
 	if (!Boolean(parseInt($newd.val())) && Boolean(parseInt($details.val())) && $serie.val() != "") {
-		$(".btn-bedside, .bedside").hide("slide","fast");	
+		$(".btn-bedside, .bedside").hide("slide","fast");
 		$(".show-details").show('blind',600);
 		listDocumentInDetails();
 	};
@@ -224,7 +225,7 @@ var saveBedside = function (event) {
 	event.preventDefault();
 	var data = new Object(),
 			pass = false;
-	$(".panel-bedside").find('input').each(function () {
+	$(".panel-bedside").find('input, select').each(function () {
 		if (this.name == "transruc" || this.name == "transreason" || this.name == "plate" || this.name == "license") {
 			data[this.name] = this.value;
 			return true;
@@ -288,7 +289,7 @@ var cleanBedside = function (event) {
 		if (this.name == "startpoint") {
 			this.value = "JR. SAN MARTIN MZA. E  LOTE. 6 LOS HUERTOS DE HUACHIPA (ALT. KM 7 DE LA AUTOPISTA RAMIRO PRIALE) LIMA LIMA LURIGANCHO";
 		}else{
-			this.value = "";	
+			this.value = "";
 		};
 	});
 }
@@ -303,4 +304,32 @@ var showBedside = function (event) {
 	if ($(".btn-new").find('.glyphicon-file').length == 0) {
 		cleanBedside();
 	}
+}
+var annularDocument = function (event) {
+	event.preventDefault();
+	$().toastmessage("showToast", {
+		text: 'Want Annular the document?',
+		type: 'confirm',
+		sticky: true,
+		buttons: [{value:'Yes'}, {value:'No'}],
+		success: function (result) {
+			if (result == "Yes") {
+				var data = {
+					"type": 'outputannular',
+					"output": $("input[name=det-serie]").val()+$("input[name=ruc]").val(),
+					"csrfmiddlewaretoken": $("input[name=csrfmiddlewaretoken]").val()
+				}
+				$.post("/restful/document/entry/annular/", data, function (response) {
+					if (response.status) {
+						$().toastmessage("showNoticeToast", "Success document delete.");
+						setTimeout(function() {
+							location.href = "/add/document/output/";
+						}, 2600);
+					}else{
+						$().toastmessage("showWarningToast", "Failure in the server." + response.raise);
+					};
+				});
+			};
+		}
+	});
 }

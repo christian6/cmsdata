@@ -103,6 +103,28 @@
 										<input type="text" class="form-control control ctrl-disabled" maxlength="10" name="license" placeholder="Q00000000" title="Ingress License" REQUIRED disabled>
 									</div>
 								</div>
+								<div class="col-md-4">
+									<div class="form-group has-warning">
+										<label class="control-label">Document *</label>
+										<select name="document" id="document" class="form-control">
+											<option value="">-- Selected Document--</option>
+											{% for x in document %}
+												<option value="{{ x.document_id }}">{{ x.description }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group has-warning">
+										<label class="control-label">Transaction *</label>
+										<select name="operation" id="operation" class="form-control">
+											<option value="">-- Selected Transaction--</option>
+											{% for x in operation %}
+												<option value="{{ x.operation_id }}">{{ x.description }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -142,25 +164,23 @@
 													</table>
 												</div>
 											</div>
-											<div class="col-md-6">
-												<div class="col-md-4">
-													<div class="form-group">
-														<label class="control-label">Quantity</label>
-														<input type="number" class="form-control" min="0" name="quantity">
-													</div>
+											<div class="col-md-2">
+												<div class="form-group">
+													<label class="control-label">Quantity</label>
+													<input type="number" class="form-control" min="0" name="quantity">
 												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label class="control-label">Price</label>
-														<input type="number" class="form-control" min="0" name="price">
-													</div>
+											</div>
+											<div class="col-md-2">
+												<div class="form-group">
+													<label class="control-label">Price</label>
+													<input type="number" class="form-control" min="0" name="price">
 												</div>
-												<div class="col-md-2">
-													<div class="form-group">
-														<label class="control-label">Aggregate</label>
-														<button class="btn btn-warning btn-block text-black btn-add-in"><span class="glyphicon glyphicon-plus"></span></button>
-													</div>
-												<div>
+											</div>
+											<div class="col-md-1">
+												<div class="form-group">
+													<label class="control-label">Aggregate</label>
+													<button class="btn btn-warning btn-block text-black btn-add-in"><span class="glyphicon glyphicon-plus"></span></button>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -169,7 +189,12 @@
 									<div class="table-responsive">
 										<table class="table table-hover table-condensed table-detailsIn">
 											<caption>
-												<button class="btn btn-primary btn-sm pull-right btn-finish-document"><span class="glyphicon glyphicon-floppy-saved"></span> Finish Document</button>
+												<button class="btn btn-sm btn-danger pull-left btn-annular">
+													<span class="glyphicon glyphicon-trash"></span> Annular Document
+												</button>
+												<button class="btn btn-primary btn-sm pull-right btn-finish-document">
+													<span class="glyphicon glyphicon-floppy-saved"></span> Finish Document
+												</button>
 											</caption>
 											<thead>
 												<tr class="brand-primary text-white">
@@ -183,7 +208,7 @@
 												</tr>
 											</thead>
 											<tbody>
-												
+
 											</tbody>
 										</table>
 									</div>
@@ -239,7 +264,7 @@
 					<label class="control-label">Code</label>
 					<input type="hidden" name="id_del">
 					<input type="text" maxlength="15" class="form-control" name="materials_del" readonly>
-				</div>	
+				</div>
 				<div class="form-group">
 					<button class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
 					<button class="btn btn-danger text-black pull-right del-materials"><span class="glyphicon glyphicon-trash"></span> Del Materials</button>
