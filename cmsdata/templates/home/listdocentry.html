@@ -18,7 +18,7 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="form-group">
-										Search per: 
+										Search per:
 										<label class="radio-inline"><input type="radio" name="search" value="status"> Status</label>
 										<label class="radio-inline"><input type="radio" name="search" value="dates"> Dates</label>
 									</div>
@@ -79,8 +79,11 @@
 										<td>{{ x.transfer }}</td>
 										<td>{{ x.status }}</td>
 										<td>
-											{% ifequal x.status 'PE'  %} 
+											{% ifequal x.status 'PE'  %}
 												<a href="{% url 'view_add_docin' %}?new=0&details=1&serie={{ x.serie }}&ruc={{ x.supplier_id }}" class="btn btn-link "><span class="glyphicon glyphicon-chevron-right"></span></a>
+											{% endifequal %}
+											{% ifequal x.status 'CO' %}
+												<a href="{% url 'rpt_entry' x.serie x.supplier_id %}" class="btn btn-link btn-xs text-black" target="_blank"><span class="glyphicon glyphicon-list-alt"></span></a>
 											{% endifequal %}
 										</td>
 									</tr>
@@ -98,9 +101,9 @@
 									<td colspan="7" class="text-center">
 										<ul class="pagination">
 											{% if documents.has_preveous %}
-												<li><a href="?page=1">&laquo;</a></li>	
-												<li><a href="?page={{ documents.previous_page_number }}">&laquo;</a></li>	
-											{% endif %}								
+												<li><a href="?page=1">&laquo;</a></li>
+												<li><a href="?page={{ documents.previous_page_number }}">&laquo;</a></li>
+											{% endif %}
 											<li><a> Page {{ documents.number }} of {{ documents.paginator.num_pages }}</a></li>
 											{% if documents.has_next %}
 												<li><a href="?page={{ documents.next_page_number }}">&raquo;</a></li>

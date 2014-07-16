@@ -23,4 +23,6 @@ urlpatterns = patterns('',
     url(r'^report/bedside/$', ViewBedsideReport.as_view(), name='rpt_bedside'),
     url(r'^report/inventory/valued/$', ViewRptInventoryValued.as_view(), name='rpt_valued'),
     url(r'^report/show/valued/$', rpt_InventoryValued.as_view(), name='rpt_show'),
+    url(r'report/document/entry/(?P<entry>.*)/(?P<supplier>.*)/$', rpt_DocumentEntry.as_view(), name='rpt_entry'),
+    url(r'report/document/output/(?P<output>.*)/(?P<customer>.*)/$', rpt_DocumentOutput.as_view(), name='rpt_output'),
 )

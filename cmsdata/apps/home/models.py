@@ -5,6 +5,23 @@ from django.contrib.auth.models import User
 from django.db import connection, transaction
 
 
+class Currency(models.Model):
+    currency_id = models.CharField(primary_key=True, max_length=2)
+    description = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return "%s - %s"%(self.currency_id, self.description)
+
+class Exchangerate(models.Model):
+    currency = models.ForeignKey(Currency, to_field='currency_id')
+    purchase = models.FloatField()
+    sale = models.FloatField()
+    date = models.DateField(auto_now=True)
+    register = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return ""%(self.currency, self.purchase, self.sale, self.date)
+
 class Document(models.Model):
     document_id = models.CharField(primary_key=True, max_length=2)
     description = models.TextField(null=True, blank=True)
@@ -82,6 +99,10 @@ class DetDocumentIn(models.Model):
     price = models.FloatField()
     flag = models.BooleanField(default=True)
 
+    @property
+    def amount(self):
+        return self.quantity * self.price
+
     def __unicode__(self):
         return "%s %s %f %f"%(self.entry, self.materials, self.quantity, self.price)
 
@@ -112,6 +133,10 @@ class DetDocumentOut(models.Model):
     quantity = models.FloatField()
     price = models.FloatField()
     flag = models.BooleanField(default=True)
+
+    @property
+    def amount(self):
+        return self.quantity * self.price
 
     def __unicode__(self):
         return "%s %s %f %f"%(self.output, self.materials, self.quantity, self.price)

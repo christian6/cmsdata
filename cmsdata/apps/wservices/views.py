@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import json
 import datetime
 import time, urllib2
+import re
 from bs4 import BeautifulSoup
 
 from django.views.generic import View
@@ -125,6 +127,7 @@ class JSONEdit_DocumentEntryDetails(JSONResponseMixin, View):
                 # Recover object to edit
                 obj = DetDocumentIn.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), entry_id=request.POST.get('entry'))
                 obj.quantity = request.POST.get('quantity')
+                obj.price = request.POST.get('price')
                 obj.save()
                 context['status'] = True
             except ObjectDoesNotExist:
@@ -164,7 +167,7 @@ class JSONList_DocumentInDetails(View):
         context = {}
         try:
             details = DetDocumentIn.objects.filter(entry_id__exact=request.GET.get('entry')).order_by('materials__matname')
-            context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
+            context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'price': x.price, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
             context['status'] = True
         except ObjectDoesNotExist:
             context['status'] = False
@@ -210,6 +213,7 @@ class JSONEdit_DocumentOutputDetails(JSONResponseMixin, View):
                 # Recover object to edit
                 obj = DetDocumentOut.objects.get(pk=request.POST.get('id'), materials_id=request.POST.get('materials'), output_id=request.POST.get('output'))
                 obj.quantity = request.POST.get('quantity')
+                obj.price = request.POST.get('price')
                 obj.save()
                 context['status'] = True
             except ObjectDoesNotExist:
@@ -246,7 +250,7 @@ class JSONList_DocumentOutputDetails(JSONResponseMixin, View):
         context = {}
         try:
             details = DetDocumentOut.objects.filter(output_id__exact=request.GET.get('entry')).order_by('materials__matname')
-            context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
+            context['list'] = [{'id': x.id, 'materiales_id': x.materials_id, 'quantity': x.quantity, 'price': x.price, 'matname': x.materials.matname, 'matmet': x.materials.matmet, 'matunit': x.materials.unit_id} for x in details]
             context['status'] = True
         except ObjectDoesNotExist:
             context['status'] = False
@@ -266,7 +270,6 @@ class JSONSearchCode_Price(JSONResponseMixin, View):
             }
             context['status'] = True
         except Exception, e:
-            print e
             context['status'] = False
         return self.render_to_json_response(context, **kwargs)
 
@@ -437,6 +440,42 @@ class JsonSunatData(View):
         except Exception, e:
             contet['status'] = False
         return HttpResponse(simplejson.dumps(context), mimetype="application/json")
+
+class RestfulExchangeRate(JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        try:
+            # Get exchange rate today
+            date = datetime.datetime.today().date()
+            exchange = Exchangerate.objects.filter(date=date)
+            if exchange.__len__() == 0:
+                url = 'http://www.sunat.gob.pe/cl-at-ittipcam/tcS01Alias'
+                data = parseSunat(url)
+                if data != 'Nothing':
+                    soup = BeautifulSoup('"""%s"""'%data)
+                    html = soup.select('body > form > div > center > table > tbody')
+                    rate = html[1].find_all('td')
+                    length = rate.__len__()
+                    obj = Exchangerate()
+                    obj.currency_id = '02'
+                    obj.purchase = float(re.sub('[(\n)(\t)(\s)]','',rate[length - 2].contents[0].string))
+                    obj.sale = float(re.sub('[(\n)(\t)(\s)]','',rate[length - 1].contents[0].string))
+                    obj.save()
+                    day = int(rate[length - 3].strong.string)
+                    if day != date.day:
+                        context['rasie'] = 'the exchange rate, does not belong to the date.'
+                    else:
+                        context['raise'] = 'Successfully save.'
+                    context['status'] = True
+                else:
+                    context['status'] = False
+            else:
+                context['raise'] = 'The exchange rate already this registered.'
+                context['status'] = True
+        except Exception, e:
+            context['raise'] = e.__str__()
+            context['status'] = False
+        return self.render_to_json_response(context, **kwargs)
 
 def parseSunat(url):
     try:

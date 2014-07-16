@@ -110,6 +110,19 @@ var editMaterials = function (event) {
 				data['id'] = $("input[name=id_edit]").val();
 				data['materials'] = $("input[name=materials_edit]").val();
 				data['quantity'] = $("input[name=quantity_edit]").val();
+				data['price'] = $("input[name=price_edit]").val();
+				/*aqui transform price*/
+				var currency = $("select[name=currencyedit]").val();
+				if (currency != "01"){
+					var $exchange = $("input[name="+ currency +"]");
+					if ($exchange.length > 0) {
+						var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+						data['price'] = (buy * parseFloat(data['price']));
+					}else{
+						$().toastmessage("showErrorToast", "Currency not support.");
+						return false;
+					};
+				}
 				data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
 					$.post('/restful/document/in/details/edit/', data, function(response) {
@@ -118,7 +131,9 @@ var editMaterials = function (event) {
 							//listDocumentInDetails();
 							var $td = $("tr."+data['id']+" > td");
 							$td.eq(1).html(data['quantity']);
-							$td.eq(5).find('button').val(data['quantity']);
+							$td.eq(2).html(data['price'].toFixed(2));
+							$td.eq(6).find('button').val(data['quantity']);
+							$td.eq(6).find('button').attr("data-price",data['price']);
 							$(".medit").modal("hide");
 						}else{
 							$().toastmessage("showErrorToast", "Error: transaction not found!");
@@ -139,10 +154,12 @@ var showDelMaterials = function (event) {
 var showEditMaterials = function (event) {
 	var id = $(this).attr("idid"),
 			mid = $(this).attr("idmat"),
-			qua = $(this).val();
+			qua = $(this).val(),
+			price = $(this).attr("data-price");
 			$("input[name=id_edit]").val(id);
 			$("input[name=materials_edit]").val(mid);
 			$("input[name=quantity_edit]").val(qua);
+			$("input[name=price_edit]").val(price);
 	$(".medit").modal("show");
 }
 var listDocumentInDetails = function () {
@@ -150,7 +167,7 @@ var listDocumentInDetails = function () {
 	if ($serie.val().trim() != "") {
 		$.getJSON('/restful/document/in/details/list/', {entry: $serie.val()+$("input[name=ruc]").val()}, function(response) {
 				if (response.status) {
-					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
+					var template = "<tr class=\"{{ id }} {{ addnow }} text-black\"><td>{{ item }}</td><td>{{ quantity }}</td><td>{{ price }}</td><td>{{ matunit }}</td><td>{{ materiales_id }}</td><td>{{ matname }} {{ matmet }}</td><td><button class=\"btn btn-link text-black btn-xs btn-edit-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\" value=\"{{ quantity }}\" data-price=\"{{ price }}\"><span class=\"glyphicon glyphicon-pencil\"></span></button></td><td><button class=\"btn btn-link text-black btn-xs btn-del-mat\" idmat=\"{{ materiales_id }}\" idid=\"{{ id }}\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
 					var $tb = $(".table-detailsIn > tbody"),
 							$mid = $(".id-mat").html();
 					$tb.empty();
@@ -199,6 +216,18 @@ var aggregateDetIn = function (event) {
 		data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 		data['flag'] = true;
 		data['csrfmiddlewaretoken'] = $("input[name=csrfmiddlewaretoken]").val();
+		// Transform price in Soles
+		var currency = $("select[name=currency]").val();
+		if (currency != "01"){
+			var $exchange = $("input[name="+ currency +"]");
+			if ($exchange.length > 0) {
+				var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+				data['price'] = (buy * parseFloat(data['price']));
+			}else{
+				$().toastmessage("showErrorToast", "Currency not support.");
+				return false;
+			};
+		}
 		$.post('/restful/document/in/details/save/', data, function(response) {
 			console.log(response);
 			if (response.status) {

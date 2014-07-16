@@ -2,7 +2,39 @@
 {% block content %}
 	<div class="container">
 		<div class="well">
-			<h1>CMS DATA</h1>
+            <div class="row">
+                <div class="col-md-2">
+
+                </div>
+                <div class="col-md-10">
+                    <div class="alert alert-warning alert-block">
+                        <strong>Warning</strong>
+                        <p>
+                            We are recover exchange rate, please wait some minutes.
+                        </p>
+                    </div>
+                </div>
+            </div>
 		</div>
 	</div>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url : '/restful/sunat/exchange/rate/',
+                type: 'GET',
+                dataType: 'json',
+                beforeSend: function (obj, success) {
+                    $('.alert-warning').show('blind',300);
+                },
+                success: function (response) {
+                    if (response.status) {
+                        $().toastmessage("showNoticeToast", "Success: " + response.raise);
+                        $('.alert-warning').hide('blind',600);
+                    }else{
+                        $().toastmessage("showErrorToast", "Error: " + response.raise);
+                    };
+                }
+            });
+        });
+    </script>
 {% endblock content %}

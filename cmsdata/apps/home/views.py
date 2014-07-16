@@ -107,6 +107,9 @@ class ViewDocumentIn(TemplateView):
         context['ruc'] = '' if request.GET.get('ruc') is None else request.GET.get('ruc')
         context['document'] = Document.objects.all().order_by('description')
         context['operation'] = Operation.objects.all().order_by('description')
+        date = datetime.datetime.today().date()
+        context['exchange'] = Exchangerate.objects.filter(date=date)
+        context['currency'] = Currency.objects.all().order_by('description')
         return render_to_response(self.template_name, context, context_instance=RequestContext(request))
 
     def post(self, request, *args, **kwargs):
@@ -159,6 +162,9 @@ class ViewDocumentOut(TemplateView):
         context['ruc'] = '' if request.GET.get('ruc') is None else request.GET.get('ruc')
         context['document'] = Document.objects.all().order_by('description')
         context['operation'] = Operation.objects.all().order_by('description')
+        date = datetime.datetime.today().date()
+        context['exchange'] = Exchangerate.objects.filter(date=date)
+        context['currency'] = Currency.objects.all().order_by('description')
         return render_to_response(self.template_name, context, context_instance=RequestContext(request))
 
     def post(self, request, *args, **kwargs):
@@ -322,14 +328,26 @@ class rpt_DocumentEntry(TemplateView):
     def get(self, request, *args, **kwargs):
         context = dict()
         try:
-
+            context['bedside'] = DocumentIn.objects.get(pk="%s%s"%(kwargs['entry'], kwargs['supplier']))
+            context['details'] = DetDocumentIn.objects.filter(entry_id="%s%s"%(kwargs['entry'], kwargs['supplier']))
             html = render_to_string(self.template_name, context,context_instance=RequestContext(request))
             return generate_pdf(html)
         except ObjectDoesNotExist, e:
             return Http404(e)
 
 # Report document outout
+class rpt_DocumentOutput(TemplateView):
+    template_name = "home/rptoutput.html"
 
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        try:
+            context['bedside'] = DocumentOut.objects.get(pk="%s%s"%(kwargs['output'], kwargs['customer']))
+            context['details'] = DetDocumentOut.objects.filter(output_id="%s%s"%(kwargs['output'], kwargs['customer']))
+            html = render_to_string(self.template_name, context,context_instance=RequestContext(request))
+            return generate_pdf(html)
+        except ObjectDoesNotExist, e:
+            return Http404(e)
 
 class rpt_InventoryValued(TemplateView):
     template_name = 'home/inventoryvalued.html'
@@ -364,32 +382,50 @@ class rpt_InventoryValued(TemplateView):
             importendinit = 0
             quantityendinit = 0
             length = matdetails.__len__()
+            # accumulate entry
             entrypriceaccum = 0
             entryimportaccum = 0
             entryquantityaccum = 0
+            # accumulate ouput
             outputpriceaccum = 0
             outputquantityaccum = 0
             outputimportaccum = 0
+            # accumulate saldo
+            salpriceaccum = 0
+            salquantityaccum = 0
+            salimportaccum = 0
             for x in matdetails:
                 if mes != '' and mes != x[1].strftime('%m'):
-                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
+                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum, 'salquantityaccum':salquantityaccum, 'salpriceaccum': salpriceaccum, 'salimportaccum': salimportaccum})
                     months = []
+                    # accumulate entry
                     entrypriceaccum = 0
                     entryimportaccum = 0
                     entryquantityaccum = 0
+                    # accumulate output
                     outputpriceaccum = 0
                     outputquantityaccum = 0
                     outputimportaccum = 0
+                    # accumulate saldo
+                    salpriceaccum = 0
+                    salquantityaccum = 0
+                    salimportaccum = 0
                 if matid != '' and matid != x[2]:
                     if optiontwo:
-                        details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
+                        details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum, 'salquantityaccum':salquantityaccum, 'salpriceaccum': salpriceaccum, 'salimportaccum': salimportaccum})
                         months = []
+                        # accumulate entry
                         entrypriceaccum = 0
                         entryimportaccum = 0
                         entryquantityaccum = 0
+                        # accumulate output
                         outputpriceaccum = 0
                         outputquantityaccum = 0
                         outputimportaccum = 0
+                        # accumulate saldo
+                        salpriceaccum = 0
+                        salquantityaccum = 0
+                        salimportaccum = 0
                     materials = Materials.objects.get(pk=matid)
                     valued.append({'materials':materials.materiales_id, 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
                     details = []
@@ -422,13 +458,13 @@ class rpt_InventoryValued(TemplateView):
                     entryquantityaccum = (entryquantityaccum + x[3])
                     entrypriceaccum = (entrypriceaccum + x[4])
                     entryimportaccum = (entryimportaccum + (x[3] * x[4]))
-                    months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
+                    months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'), 'doc':x[7], 'operation': x[6],'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
                 elif x[5] == 'OUTPUT':
                     quantityendinit = (quantityendinit - x[3])
                     outputquantityaccum = (outputquantityaccum + x[3])
                     outputpriceaccum = (outputpriceaccum + x[4])
                     outputimportaccum = (outputimportaccum + (x[3] * x[4]))
-                    months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'),'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
+                    months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'), 'doc':x[7], 'operation': x[6],'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
                 # print x[1], x[2]
                 counter += 1
                 matid = x[2]

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request of Quotation</title>
+    <link rel="stylesheet" type="text/css" href="/media/css/report/entry.css">
+</head>
+<body>
+    <header>
+        <img id="logo" src="/media/images/icrlogo.png" alt="image">
+        <div id="dir" >
+            Jr. Gral. Jose de San Martin Mz. E Lote 6 Huachipa - Lurigancho Lima 15, Peru<br >
+            Central Telefonica: (511) 371-0443<br >
+            E-mail: logistica@icrperusa.com
+        </div>
+        <div id="info-type">
+            <h1>Materiales</h1>
+        </div>
+        <div id="nro-serie">
+            <h1>Nro {{ bedside.document.description }}</h1>
+            <h1 id="nro">{{ bedside.serie }}</h1>
+        </div>
+        <div id="bedside-col1">
+            <table>
+                <tr><td><strong>Cliente :</strong></td><td> {{ bedside.customers_id }} - {{ bedside.customers.reason }}</td></tr>
+                <tr><td><strong>Dirección :</strong></td><td> {{ bedside.customers.address }}</td></tr>
+                <tr><td width="3cm"><strong>Fecha Registrado :</strong></td><td> {{ bedside.register }}</td></tr>
+                <tr><td><strong>Fecha Traslado :</strong></td><td> {{ bedside.transfer }}</td></tr>
+                <tr><td><strong>Punto de Partida :</strong></td><td> {{ bedside.startpoint }}</td></tr>
+
+            </table>
+        </div>
+        <div id="bedside-col2">
+            <table>
+                <tr><td><strong>Punto de Llegada :</strong></td><td> {{ bedside.endpoint }}</td></tr>
+                <tr><td><strong>Transportista :</strong></td><td> {{ bedside.transruc }} {{ bedside.transreason }}</td></tr>
+                <tr><td><strong>Placa - Licencia :</strong></td><td> {{ bedside.plate }} - {{ bedside.license }}</td></tr>
+                <tr><td><strong>Tipo de Documento :</strong></td><td> {{ bedside.document.description }}</td></tr>
+                <tr><td><strong>Tipo Operación :</strong></td><td> {{ bedside.operation.description }}</td></tr>
+                <tr><td><strong>Moneda:</strong></td><td> NUEVOS SOLES</td></tr>
+                <tr><td width="3cm"><strong>Estado :</strong></td><td>
+                    {% ifequal bedside.status 'PE'  %}
+                        PENDIENTE
+                    {% else %}
+                        COMPLETO
+                    {% endifequal %}
+                </td></tr>
+            </table>
+        </div>
+    </header>
+    <section>
+        <div class="details">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th width="2.5cm">Código</th>
+                        <th width="4cm">Descripción</th>
+                        <th width="4cm">Medida</th>
+                        <th>Unidad</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for x in details %}
+                    <tr>
+                        <td class="text-center item">{{ forloop.counter|floatformat:"2" }}</td>
+                        <td class="text-center cod">{{ x.materials_id }}</td>
+                        <td>{{ x.materials.matname }}</td>
+                        <td>{{ x.materials.matmet }}</td>
+                        <td class="text-center">{{ x.materials.unit_id }}</td>
+                        <td class="text-center">{{ x.quantity|floatformat:"2" }}</td>
+                        <td class="text-center">{{ x.price|floatformat:"2" }}</td>
+                        <td class="text-center">{{ x.amount|floatformat:"2" }}</td>
+                    </tr>
+                {% endfor%}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</body>
+</html>

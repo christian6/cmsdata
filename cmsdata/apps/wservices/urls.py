@@ -6,7 +6,9 @@ from django.conf.urls import patterns, url
 from .views import *
 
 urlpatterns = patterns('',
+    # consult Sunat
     url(r'^search/sunat/ruc/$', JsonSunatData.as_view()),
+    url(r'^sunat/exchange/rate/$', RestfulExchangeRate.as_view()),
     # Search Concurrent
     url(r'^materials/name/$', JSONDescription_Materials.as_view()),
     url(r'^materials/meter/$', JSONMeter_Materials.as_view()),
