@@ -472,6 +472,7 @@ class RestfulExchangeRate(JSONResponseMixin, View):
             else:
                 context['raise'] = 'The exchange rate already this registered.'
                 context['status'] = True
+                context['show'] = False
         except Exception, e:
             context['raise'] = e.__str__()
             context['status'] = False

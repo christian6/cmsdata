@@ -28,7 +28,9 @@
                 },
                 success: function (response) {
                     if (response.status) {
-                        $().toastmessage("showNoticeToast", "Success: " + response.raise);
+                        if (response.show) {
+                            $().toastmessage("showNoticeToast", "Success: " + response.raise);
+                        };
                         $('.alert-warning').hide('blind',600);
                     }else{
                         $().toastmessage("showErrorToast", "Error: " + response.raise);

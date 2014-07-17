@@ -363,6 +363,7 @@ class rpt_InventoryValued(TemplateView):
             if request.GET.get('type') == 'period':
                 """ This section show in the report all the materials of period send as parameter """
                 matdetails = Inventory.getMaterialsByPeriod(request.GET.get('period'))
+                optiontwo = False
             elif request.GET.get('type') == 'periodandmonth':
                 matdetails = Inventory.getMaterialsByPeriodandMonth(request.GET.get('period'),request.GET.get('month'))
                 optiontwo = True
@@ -373,6 +374,7 @@ class rpt_InventoryValued(TemplateView):
             elif request.GET.get('type') == 'periodandmaterials':
                 mat = request.GET.get('materials')[1:]
                 matdetails = Inventory.getMaterialsByPerioandMaterials(request.GET.get('period'), mat)
+                optiontwo = False
 
             matid = ''
             details = []
@@ -394,6 +396,7 @@ class rpt_InventoryValued(TemplateView):
             salpriceaccum = 0
             salquantityaccum = 0
             salimportaccum = 0
+            print 'matdetails ', length
             for x in matdetails:
                 if mes != '' and mes != x[1].strftime('%m'):
                     details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum, 'salquantityaccum':salquantityaccum, 'salpriceaccum': salpriceaccum, 'salimportaccum': salimportaccum})
@@ -410,22 +413,24 @@ class rpt_InventoryValued(TemplateView):
                     salpriceaccum = 0
                     salquantityaccum = 0
                     salimportaccum = 0
+
+                print 'matid ', x[2]
                 if matid != '' and matid != x[2]:
-                    if optiontwo:
-                        details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum, 'salquantityaccum':salquantityaccum, 'salpriceaccum': salpriceaccum, 'salimportaccum': salimportaccum})
-                        months = []
-                        # accumulate entry
-                        entrypriceaccum = 0
-                        entryimportaccum = 0
-                        entryquantityaccum = 0
-                        # accumulate output
-                        outputpriceaccum = 0
-                        outputquantityaccum = 0
-                        outputimportaccum = 0
-                        # accumulate saldo
-                        salpriceaccum = 0
-                        salquantityaccum = 0
-                        salimportaccum = 0
+                    #if optiontwo:
+                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum, 'salquantityaccum':salquantityaccum, 'salpriceaccum': salpriceaccum, 'salimportaccum': salimportaccum})
+                    months = []
+                    # accumulate entry
+                    entrypriceaccum = 0
+                    entryimportaccum = 0
+                    entryquantityaccum = 0
+                    # accumulate output
+                    outputpriceaccum = 0
+                    outputquantityaccum = 0
+                    outputimportaccum = 0
+                    # accumulate saldo
+                    salpriceaccum = 0
+                    salquantityaccum = 0
+                    salimportaccum = 0
                     materials = Materials.objects.get(pk=matid)
                     valued.append({'materials':materials.materiales_id, 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
                     details = []
@@ -437,12 +442,15 @@ class rpt_InventoryValued(TemplateView):
                         year = str(int(x[1].strftime('%Y')) - 1)
                         mon = '12'
                     init = Inventory.getSaldoonPeriodandMonth(materials=x[2], period=year, month=mon)
-                    if init != []:
+                    if init.__len__() > 0:
                         importendinit = (init[0][3] * init[0][4])
                         quantityendinit = init[0][3]
                         entryquantityaccum = (entryquantityaccum + quantityendinit)
                         entrypriceaccum = (entrypriceaccum + init[0][4])
                         entryimportaccum = (entryimportaccum + importendinit)
+                        salquantityaccum = init[0][3]
+                        salpriceaccum = init[0][4]
+                        salimportaccum = importendinit
                         months.append({'quantity': quantityendinit, 'price': init[0][4], 'import': importendinit, 'endquantity':init[0][3], 'endprice':init[0][4], 'endimport': importendinit, 'type':'initial'})
                     else:
                         importendinit = 0
@@ -453,17 +461,24 @@ class rpt_InventoryValued(TemplateView):
                 post = ''
                 pre = x[0][:3]
                 post = x[0][4:-11]
+                print 'typo de document ', x[5]
                 if x[5] == 'ENTRY':
                     quantityendinit = (quantityendinit + x[3])
                     entryquantityaccum = (entryquantityaccum + x[3])
                     entrypriceaccum = (entrypriceaccum + x[4])
                     entryimportaccum = (entryimportaccum + (x[3] * x[4]))
+                    salquantityaccum = quantityendinit
+                    salpriceaccum = x[4]
+                    salimportaccum = (quantityendinit * x[4])
                     months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'), 'doc':x[7], 'operation': x[6],'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
                 elif x[5] == 'OUTPUT':
                     quantityendinit = (quantityendinit - x[3])
                     outputquantityaccum = (outputquantityaccum + x[3])
                     outputpriceaccum = (outputpriceaccum + x[4])
                     outputimportaccum = (outputimportaccum + (x[3] * x[4]))
+                    salquantityaccum = quantityendinit
+                    salpriceaccum = x[4]
+                    salimportaccum = (quantityendinit * x[4])
                     months.append({'predoc':pre,'postdoc': post,'transfer':x[1].strftime('%d-%m-%Y'), 'doc':x[7], 'operation': x[6],'materials':x[2],'quantity':x[3],'price':x[4],'import':(x[3] * x[4]),'type':x[5], 'endquantity': quantityendinit, 'endprice': x[4], 'importend': (quantityendinit * x[4])})
                 # print x[1], x[2]
                 counter += 1
@@ -471,12 +486,12 @@ class rpt_InventoryValued(TemplateView):
                 mes = x[1].strftime('%m')
                 # print length, counter
                 if length == counter:
-                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum })
+                    details.append({'months': months, 'monthname': namemonth[mes], 'entryquantityaccum': entryquantityaccum, 'entrypriceaccum': entrypriceaccum, 'entryimportaccum': entryimportaccum, 'outputquantityaccum':outputquantityaccum, 'outputpriceaccum': outputpriceaccum, 'outputimportaccum': outputimportaccum, 'salquantityaccum':salquantityaccum, 'salpriceaccum': salpriceaccum, 'salimportaccum': salimportaccum })
                     materials = Materials.objects.get(pk=matid)
                     valued.append({'materials':x[2], 'name': materials.matname, 'measure': materials.matmet, 'unit':materials.unit_id, 'details': details})
 
             context['inventory'] = valued
-            #print context
+            # print context
             html = render_to_string(self.template_name, context, context_instance=RequestContext(request))
             return generate_pdf(html)
         except ObjectDoesNotExist, e:
@@ -564,5 +579,19 @@ class rpt_InventoryValued(TemplateView):
         ], 'materials': u'220018030014003', 'name': u'Abrazadera Fig. 1000', 'unit': u'Unid', 'measure': u' 1" x 1 1/2"'}
     ]
 }
+
+################################
+
+{'period': u'2014',
+    'inventory': [
+        {'details': [],
+            'materials': u'220908030301001', 'name': u'Abrazadera de 1 Oreja, Pesada', 'unit': u'Unid', 'measure': u'1/2"'},
+        {'details': [], 'materials': u'331340039700001', 'name': u'Hacha', 'unit': u'Unid', 'measure': u'Estandar'},
+        {'details': [
+            {'entrypriceaccum': 306.13, 'outputimportaccum': 0, 'outputpriceaccum': 0, 'monthname': 'Enero', 'salpriceaccum': 306.13, 'outputquantityaccum': 0, 'salimportaccum': 24212.1, 'entryimportaccum': 5844.299999999999, 'entryquantityaccum': 85.0,
+            'months': [{'endquantity': 0, 'endimport': 0, 'endprice': 0, 'price': 0, 'import': 0, 'type': 'initial', 'quantity': 0}, {'endquantity': 60.0, 'endprice': 55.66, 'price': 55.66, 'operation': u'02', 'postdoc': u'00000001', 'predoc': u'001', 'importend': 3339.6, 'doc': u'01', 'materials': u'220908030301001', 'transfer': '04-01-2014', 'import': 3339.6, 'type': u'ENTRY', 'quantity': 60.0},
+                 {'endquantity': 80.0, 'endprice': 83.49, 'price': 83.49, 'operation': u'02', 'postdoc': u'00000001', 'predoc': u'001', 'importend': 6679.2, 'doc': u'01', 'materials': u'331340039700001', 'transfer': '04-01-2014', 'import': 1669.8, 'type': u'ENTRY', 'quantity': 20.0}, {'endquantity': 85.0, 'endprice': 166.98, 'price': 166.98, 'operation': u'02', 'postdoc': u'00000001', 'predoc': u'001', 'importend': 14193.3, 'doc': u'01', 'materials': u'336111600013002', 'transfer': '04-01-2014', 'import': 834.9, 'type': u'ENTRY', 'quantity': 5.0}], 'salquantityaccum': 225.0}],
+                'materials': u'336111600013002', 'name': u'Manometro de Glicerina', 'unit': u'Unid', 'measure': u'1/4", 0 to 300 Psi'}]}
+
 
 """
