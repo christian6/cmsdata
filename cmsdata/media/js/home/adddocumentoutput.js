@@ -33,6 +33,8 @@ $(document).ready(function() {
 	$(".btn-finish-document").on("click", finishDocument);
 	$(".btn-annular").on("click", annularDocument);
 	showDetails();
+	$("input[name=currencycurrent]").on("change", activateChangeCurrency);
+	$("input[name=typeccu]").val($("input[name=02]").attr("data-purchase"));
 });
 // varibles
 var dataCustomers = new Object();
@@ -96,6 +98,13 @@ var delMaterials = function (event) {
 		}
 	});
 }
+var activateChangeCurrency = function (event) {
+	if (this.checked) {
+		$("input[name=typeccu]").attr("disabled", false);
+	}else{
+		$("input[name=typeccu]").attr("disabled", true);
+	};
+}
 var editMaterials = function (event) {
 	event.preventDefault();
 	$().toastmessage("showToast",{
@@ -113,14 +122,20 @@ var editMaterials = function (event) {
 				data['price'] = $("input[name=price_edit]").val();
 				/*aqui transform price*/
 				var currency = $("select[name=currencyedit]").val();
+
 				if (currency != "01"){
-					var $exchange = $("input[name="+ currency +"]");
-					if ($exchange.length > 0) {
-						var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+					if ($("input[name=currencycurrent]").is(":checked")) {
+						var buy = parseFloat($("input[name=typeccu]").val().replace(",","."));
 						data['price'] = (buy * parseFloat(data['price']));
 					}else{
-						$().toastmessage("showErrorToast", "Currency not support.");
-						return false;
+						var $exchange = $("input[name="+ currency +"]");
+						if ($exchange.length > 0) {
+							var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+							data['price'] = (buy * parseFloat(data['price']));
+						}else{
+							$().toastmessage("showErrorToast", "Currency not support.");
+							return false;
+						};
 					};
 				}
 				data['output'] = $("input[name=det-serie]").val()+$("input[name=ruc]").val();
@@ -220,13 +235,18 @@ var aggregateDetoutput = function (event) {
 		/*aqui transform price*/
 		var currency = $("select[name=currency]").val();
 		if (currency != "01"){
-			var $exchange = $("input[name="+ currency +"]");
-			if ($exchange.length > 0) {
-				var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+			if ($("input[name=currencycurrent]").is(":checked")) {
+				var buy = parseFloat($("input[name=typeccu]").val().replace(",","."));
 				data['price'] = (buy * parseFloat(data['price']));
 			}else{
-				$().toastmessage("showErrorToast", "Currency not support.");
-				return false;
+				var $exchange = $("input[name="+ currency +"]");
+				if ($exchange.length > 0) {
+					var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+					data['price'] = (buy * parseFloat(data['price']));
+				}else{
+					$().toastmessage("showErrorToast", "Currency not support.");
+					return false;
+				};
 			};
 		}
 		$.post('/restful/document/out/details/save/', data, function(response) {

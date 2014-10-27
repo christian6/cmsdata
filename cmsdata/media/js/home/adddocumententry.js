@@ -33,10 +33,19 @@ $(document).ready(function() {
 	$(".del-materials").on("click", delMaterials);
 	$(".btn-finish-document").on("click", finishDocument);
 	$(".btn-annular").on("click", annularDocument);
+	$("input[name=currencycurrent]").on("change", activateChangeCurrency);
+	$("input[name=typeccu]").val($("input[name=02]").attr("data-purchase"));
 });
 
 var dataProvider = new Object();
 // functions
+var activateChangeCurrency = function (event) {
+	if (this.checked) {
+		$("input[name=typeccu]").attr("disabled", false);
+	}else{
+		$("input[name=typeccu]").attr("disabled", true);
+	};
+}
 var finishDocument = function (event) {
 	event.preventDefault();
 	$().toastmessage("showToast",{
@@ -114,14 +123,27 @@ var editMaterials = function (event) {
 				/*aqui transform price*/
 				var currency = $("select[name=currencyedit]").val();
 				if (currency != "01"){
-					var $exchange = $("input[name="+ currency +"]");
+					if ($("input[name=currencycurrent]").is(":checked")) {
+						var buy = parseFloat($("input[name=typeccu]").val().replace(",","."));
+						data['price'] = (buy * parseFloat(data['price']));
+					}else{
+						var $exchange = $("input[name="+ currency +"]");
+						if ($exchange.length > 0) {
+							var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+							data['price'] = (buy * parseFloat(data['price']));
+						}else{
+							$().toastmessage("showErrorToast", "Currency not support.");
+							return false;
+						};
+					};
+					/*var $exchange = $("input[name="+ currency +"]");
 					if ($exchange.length > 0) {
 						var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
 						data['price'] = (buy * parseFloat(data['price']));
 					}else{
 						$().toastmessage("showErrorToast", "Currency not support.");
 						return false;
-					};
+					};*/
 				}
 				data['entry'] = $("input[name=det-serie]").val()+""+$("input[name=ruc]").val();
 				if (data.quantity != "" && data.materials != "" && data.id != "") {
@@ -219,14 +241,27 @@ var aggregateDetIn = function (event) {
 		// Transform price in Soles
 		var currency = $("select[name=currency]").val();
 		if (currency != "01"){
-			var $exchange = $("input[name="+ currency +"]");
+			if ($("input[name=currencycurrent]").is(":checked")) {
+				var buy = parseFloat($("input[name=typeccu]").val().replace(",","."));
+				data['price'] = (buy * parseFloat(data['price']));
+			}else{
+				var $exchange = $("input[name="+ currency +"]");
+				if ($exchange.length > 0) {
+					var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
+					data['price'] = (buy * parseFloat(data['price']));
+				}else{
+					$().toastmessage("showErrorToast", "Currency not support.");
+					return false;
+				};
+			};
+			/*var $exchange = $("input[name="+ currency +"]");
 			if ($exchange.length > 0) {
 				var buy = parseFloat($exchange.attr("data-purchase").replace(",","."));
 				data['price'] = (buy * parseFloat(data['price']));
 			}else{
 				$().toastmessage("showErrorToast", "Currency not support.");
 				return false;
-			};
+			};*/
 		}
 		$.post('/restful/document/in/details/save/', data, function(response) {
 			console.log(response);

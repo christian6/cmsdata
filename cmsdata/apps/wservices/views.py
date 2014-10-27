@@ -6,6 +6,7 @@ import datetime
 import time, urllib2
 import re
 from bs4 import BeautifulSoup
+from urllib2 import urlopen
 
 from django.views.generic import View
 from django.http import HttpResponse
@@ -156,9 +157,32 @@ class JSONFinish_DocumentEntry(JSONResponseMixin, View):
                 obj.status = 'CO'
                 obj.save()
                 context['status'] = True
-            except Exception, e:
+            except ObjectDoesNotExist, e:
                 context['status'] = False
             return self.render_to_json_response(context, **kwargs)
+
+class JSONEditDocument(JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            context = dict()
+            try:
+                if 'editDocument' in request.POST:
+                    obj = None
+                    if request.POST.get('document') == 'ENTRY':
+                        obj = DocumentIn.objects.get(pk__exact=request.POST.get('pk'))
+                    elif request.POST.get('document') == 'OUTPUT':
+                        obj = DocumentOut.objects.get(pk__exact=request.POST.get('pk'))
+                    print 'print object ', obj
+                    if obj:
+                        obj.status = 'PE'
+                        obj.save()
+                        context['status'] = True
+                    else:
+                        context['status'] = False
+            except ObjectDoesNotExist, e:
+                context['raise'] = e.__str__()
+                context['status'] = False
+            return self.render_to_json_response(context)
 
 class JSONList_DocumentInDetails(View):
     def get(self, request, *args, **kwargs):
@@ -480,6 +504,9 @@ class RestfulExchangeRate(JSONResponseMixin, View):
 
 def parseSunat(url):
     try:
+        #proxy = urllib2.ProxyHandler({'http':'http://172.16.0.1:8080'})
+        #opener = urllib2.build_opener(proxy)
+        #urllib2.install_opener(opener)
         req = urllib2.Request(url)
         return urllib2.urlopen(req).read()
     except Exception:

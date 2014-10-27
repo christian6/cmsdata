@@ -65,7 +65,7 @@
 							</caption>
 							<thead>
 								<tr class="brand-primary">
-									<th></th><th>ID</th><th>Serie ID</th><th>Supplier</th><th>Campany Name</th><th>Transfer</th><th>Status</th><th></th>
+									<th></th><th>ID</th><th>Serie ID</th><th>Supplier</th><th>Campany Name</th><th>Transfer</th><th>Status</th><th></th><th></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -85,6 +85,11 @@
 											{% ifequal x.status 'CO' %}
 												<a href="{% url 'rpt_entry' x.serie x.supplier_id %}" class="btn btn-link btn-xs text-black" target="_blank"><span class="glyphicon glyphicon-list-alt"></span></a>
 											{% endifequal %}
+										</td>
+										<td>
+										{% ifequal x.status 'CO' %}
+											<button class="btn btn-xs btn-link text-black btn-change-status" value="{{ x.entry_id }}" data-ruc="{{ x.supplier_id }}" data-serie="{{ x.serie }}" data-type="ENTRY"><span class="glyphicon glyphicon-pencil"></span></button>
+										{% endifequal %}
 										</td>
 									</tr>
 								{% empty %}
@@ -121,4 +126,5 @@
 			</section>
 		</div>
 	</div>
+{% csrf_token %}
 {% endblock content %}
