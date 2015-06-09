@@ -69,8 +69,11 @@ class JSONSummary_Materials(View):
     def get(self, request, *args, **kwargs):
         context = {}
         try:
-            summ = Materials.objects.filter(matname__icontains=request.GET.get('description'), matmet__icontains=request.GET.get('meter'))[:1]
-            context['mats'] = [{'materiales_id': x.materiales_id, 'matname': x.matname, 'matmet': x.matmet, 'unit': x.unit_id} for x in summ]
+            summ = Materials.objects.filter(matname__icontains=request.GET.get('description'),
+                matmet__icontains=request.GET.get('meter'))
+            for x in summ:
+                if x.matmet == request.GET.get('meter'):
+                    context['mats'] = [{'materiales_id': x.materiales_id, 'matname': x.matname, 'matmet': x.matmet, 'unit': x.unit_id}]
             context['status'] = True
         except ObjectDoesNotExist:
             context['status'] = False

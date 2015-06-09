@@ -37,7 +37,7 @@ class ViewLogin(TemplateView):
         try:
             form = logininForm(request.POST)
             if form.is_valid():
-                print "form validate"
+                #print "form validate"
                 username = form.cleaned_data['username']
                 password = form.cleaned_data['password']
                 usuario = authenticate(username=username,password=password)
@@ -46,11 +46,13 @@ class ViewLogin(TemplateView):
                     return HttpResponseRedirect('/')
                 else:
                     message = "Usuario o Password invalid!"
+                    context = { 'form': logininForm(), 'msg': message }
+                    return render_to_response('home/login.html', context, context_instance=RequestContext(request))
             else:
                 message = "Usuario o Password, invalid!"
                 context = { 'form': logininForm(), 'msg': message }
             return render_to_response('home/login.html', context, context_instance=RequestContext(request))
-        except Exception, e:
+        except ObjectDoesNotExist, e:
             raise Http404("Method no proccess")
 
 class ViewLogout(View):
